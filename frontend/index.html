@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMPI Galaxy | Real-Time Groundwater Monitoring</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Glassmorphism Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>HMPI <span>Galaxy</span></h1>
+                <p>AI-Powered Groundwater Monitoring</p>
+            </div>
+            
+            <div class="dashboard-cards">
+                <div class="card live-status-card">
+                    <h3>Live System Status</h3>
+                    <div class="status-indicator">
+                        <span class="pulse"></span> Active (WRIS Sync)
+                    </div>
+                </div>
+
+                <div class="card ai-prediction-card">
+                    <h3>Latest AI Prediction</h3>
+                    <div class="prediction-value" id="ai-pred-value">--</div>
+                    <p class="prediction-label">Forecasted HMPI (6 mo.)</p>
+                </div>
+
+                <div class="card summary-card">
+                    <h3>Current Region Quality</h3>
+                    <div class="quality-badge" id="quality-badge">Awaiting Data</div>
+                    <div class="stat-row">
+                        <span>Current HMPI:</span>
+                        <strong id="current-hmpi">--</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="refresh-btn" class="btn primary-btn">Fetch Live WRIS Data</button>
+                <button id="load-history-btn" class="btn secondary-btn">Load Historical Map</button>
+            </div>
+        </aside>
+
+        <!-- Main Map Area -->
+        <main class="map-area">
+            <div id="map"></div>
+            <!-- Overlay for loading -->
+            <div id="loading-overlay" class="hidden">
+                <div class="spinner"></div>
+                <p>Analyzing Data...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
