@@ -81,66 +81,79 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/40 via-slate-950 to-black text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30">
-      <header className="bg-white/5 backdrop-blur-xl border-b border-white/10 text-white shadow-2xl sticky top-0 z-50 transition-all duration-300">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
+      {/* Official Top Banner */}
+      <div className="bg-orange-500 text-white text-xs font-bold px-4 py-1 flex justify-between tracking-widest uppercase">
+        <span>Government of India</span>
+        <span>Ministry of Jal Shakti</span>
+      </div>
+      
+      <header className="bg-[#003366] text-white shadow-md border-b-4 border-green-600 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="p-2 bg-blue-500/20 rounded-xl rounded-tl-none border border-blue-400/30 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-              <Droplets className="w-8 h-8 text-cyan-400 filter drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+            <div className="bg-white p-2 rounded-full hidden sm:block">
+               <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem" className="w-10 h-10 object-contain" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-400">
-                HMPI Galaxy
-              </h1>
-              <p className="text-cyan-200/70 text-xs md:text-sm font-semibold tracking-wide uppercase mt-0.5">
-                Advanced AI Groundwater Architecture
-              </p>
+              <h1 className="text-xl md:text-2xl font-serif font-black tracking-wide">CENTRAL GROUNDWATER BOARD</h1>
+              <p className="text-blue-200 text-xs md:text-sm font-semibold tracking-widest uppercase">National HMPI Monitoring Portal</p>
             </div>
           </div>
           <button 
             onClick={fetchLiveWrisSync} 
-            className="group relative flex items-center gap-2 bg-blue-600/80 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all duration-300 overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] border border-blue-400/50"
+            className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded font-bold shadow-md transition-all border border-green-900"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} /> 
-            {loading ? 'SYNTHESIZING...' : 'LIVE WRIS SYNC'}
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> 
+            {loading ? 'SYNCHRONIZING...' : 'INDIA-WRIS LIVE SYNC'}
           </button>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 flex-1">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2 bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden relative group">
-            <div className="absolute inset-x-0 h-px top-0 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
-            <LocationMap locations={locations} onLocationSelect={setSelectedLocation} selectedLocationId={selectedLocation?.id} />
+      <main className="container mx-auto px-4 py-6 flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="lg:col-span-2 bg-white border-2 border-slate-300 shadow-sm rounded-sm overflow-hidden">
+            <div className="bg-slate-200 border-b-2 border-slate-300 px-4 py-2 font-bold text-[#003366] uppercase text-sm flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-600"></span>
+                National Geographic Information System (GIS)
+            </div>
+            <div className="h-[400px]">
+                <LocationMap locations={locations} onLocationSelect={setSelectedLocation} selectedLocationId={selectedLocation?.id} />
+            </div>
           </div>
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl p-1 relative">
-            <div className="absolute inset-x-0 h-px top-0 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
-            <LocationDetails location={selectedLocation} />
+          <div className="bg-white border-2 border-slate-300 shadow-sm rounded-sm flex flex-col">
+            <div className="bg-slate-200 border-b-2 border-slate-300 px-4 py-2 font-bold text-[#003366] uppercase text-sm">
+                Node Telemetry Profile
+            </div>
+            <div className="flex-1">
+                <LocationDetails location={selectedLocation} />
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl p-1 relative">
-            <div className="absolute inset-x-0 h-px top-0 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
-            <Statistics locations={locations} />
+          <div className="lg:col-span-2 bg-white border-2 border-slate-300 shadow-sm rounded-sm">
+            <div className="bg-slate-200 border-b-2 border-slate-300 px-4 py-2 font-bold text-[#003366] uppercase text-sm">
+                Statistical Aggregation & Reporting
+            </div>
+            <div className="p-4">
+                <Statistics locations={locations} />
+            </div>
           </div>
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl p-1 relative">
-            <div className="absolute inset-x-0 h-px top-0 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
-            <HMPICalculator onCalculate={handleCalculate} />
+          <div className="bg-white border-2 border-slate-300 shadow-sm rounded-sm">
+            <div className="bg-slate-200 border-b-2 border-slate-300 px-4 py-2 font-bold text-[#003366] uppercase text-sm">
+                Diagnostic Computation Terminal
+            </div>
+            <div className="p-4">
+                <HMPICalculator onCalculate={handleCalculate} />
+            </div>
           </div>
         </div>
       </main>
 
-      <footer className="bg-slate-950 border-t border-white/10 text-slate-500 relative overflow-hidden">
-        <div className="absolute inset-x-0 h-px top-0 bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"></div>
-        <div className="container mx-auto px-4 py-8 text-center text-sm font-medium">
-          <p className="flex items-center justify-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>
-            Heavy Metal Pollution Index (HMPI) Core powered by 
-            <strong className="text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">Gradient Boosting AI</strong> & 
-            <strong className="text-blue-400 drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]">Deep Learning metrics</strong>.
-          </p>
+      <footer className="bg-slate-800 border-t-4 border-orange-500 text-slate-300 mt-8">
+        <div className="container mx-auto px-4 py-6 text-center text-xs font-semibold uppercase tracking-wider">
+          <p className="mb-2">Powered by the National Informatics Centre (NIC) framework standard.</p>
+          <p>Heavy Metal Pollution Index mapped strictly to BIS (IS-10500:2012) Statutory Guidelines.</p>
         </div>
       </footer>
     </div>
