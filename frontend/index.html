@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="style.css">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for Statistics Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -18,26 +20,25 @@
         <aside class="sidebar">
             <div class="logo">
                 <h1>HMPI <span>Galaxy</span></h1>
-                <p>Groundwater Monitoring Locations</p>
+                <p>Groundwater Monitoring System</p>
             </div>
             
             <div class="dashboard-cards">
                 <div class="flex gap-2">
-                    <div class="card live-status-card flex-1">
+                    <div class="card live-status-card flex-1" style="padding:1rem;">
                         <h3>System Status</h3>
-                        <div class="status-indicator">
+                        <div class="status-indicator" style="font-size:0.8rem;">
                             <span class="pulse"></span> Active Sync
                         </div>
                     </div>
 
-                    <div class="card ai-prediction-card flex-1">
+                    <div class="card ai-prediction-card flex-1" style="padding:1rem;">
                         <h3>AI Forecast</h3>
-                        <div class="prediction-value" id="ai-pred-value" style="font-size:1.8rem;">--</div>
+                        <div class="prediction-value" id="ai-pred-value" style="font-size:1.5rem;">--</div>
                         <p class="prediction-label text-xs mt-1">Expected Trend</p>
                     </div>
                 </div>
 
-                <!-- Next-Level Integration: Comprehensive Location Details Panel -->
                 <div class="card summary-card" id="region-card">
                     <div class="flex-between mb-2">
                         <h3 id="loc-details-name" style="margin-bottom:0;">Region Overview</h3>
@@ -49,20 +50,16 @@
                         <strong id="current-hmpi" class="text-2xl">--</strong>
                     </div>
 
-                    <!-- Visual HMPI Progress Bar -->
                     <div class="progress-container hidden" id="hmpi-progress-container">
                         <div class="progress-bar-bg">
                             <div class="progress-bar-fill" id="hmpi-progress"></div>
                         </div>
                     </div>
 
-                    <!-- Extended Assessment Data -->
                     <div id="loc-extended-details" class="hidden mt-4 pt-3" style="border-top:1px solid rgba(255,255,255,0.1);">
                         <div class="detail-section mb-3">
                             <h4 class="flex items-center gap-1 mb-2 text-sm text-main"><i data-lucide="droplet" class="w-4 h-4 text-blue"></i> Detected Metals</h4>
-                            <div id="detected-metals-grid" class="metals-grid">
-                                <!-- Metal Tags injected here -->
-                            </div>
+                            <div id="detected-metals-grid" class="metals-grid"></div>
                         </div>
                         
                         <div class="detail-section">
@@ -76,10 +73,12 @@
                 </div>
             </div>
 
+            <!-- Next Level Integration: Statistics Dashboard Button (4-Grid) -->
             <div class="controls">
                 <button id="refresh-btn" class="btn primary-btn"><i data-lucide="refresh-cw"></i> Live Sync</button>
-                <button id="load-history-btn" class="btn secondary-btn"><i data-lucide="map"></i> Map</button>
+                <button id="open-stats-btn" class="btn secondary-btn" title="Global Statistics"><i data-lucide="activity"></i> Analytics</button>
                 <button id="open-calc-btn" class="btn primary-btn" title="Manual Calculator"><i data-lucide="calculator"></i> Calc</button>
+                <button id="load-history-btn" class="btn secondary-btn"><i data-lucide="map"></i> Map Reset</button>
             </div>
             
             <div class="location-list-header">
@@ -149,6 +148,55 @@
                     </div>
                 </div>
             </div>
+
+            <!-- GLOBAL STATISTICS MODAL (React Component Ported to Vanilla JS) -->
+            <div id="stats-modal" class="hidden glass-modal" style="z-index: 4000;">
+                <div class="modal-content" style="max-width: 900px; width: 95%; height: 90vh; overflow-y: auto;">
+                    <button id="close-stats-btn" class="close-btn"><i data-lucide="x"></i></button>
+                    <h2 class="modal-title flex items-center gap-2">
+                        <i data-lucide="bar-chart-2"></i> Pollution Analytics Dashboard
+                    </h2>
+                    
+                    <!-- 4 Severity Counters -->
+                    <div class="grid md:grid-cols-4 gap-4 mb-6">
+                        <div class="stat-box bg-green shadow-inset">
+                            <div class="flex items-center gap-2 mb-1 text-white opacity-90"><i data-lucide="check-circle" class="w-4 h-4"></i> Low</div>
+                            <div class="text-3xl font-bold text-white" id="stat-low">0</div>
+                        </div>
+                        <div class="stat-box bg-yellow shadow-inset text-black">
+                            <div class="flex items-center gap-2 mb-1 opacity-90"><i data-lucide="alert-circle" class="w-4 h-4"></i> Moderate</div>
+                            <div class="text-3xl font-bold" id="stat-mod">0</div>
+                        </div>
+                        <div class="stat-box bg-orange shadow-inset">
+                            <div class="flex items-center gap-2 mb-1 text-white opacity-90"><i data-lucide="alert-triangle" class="w-4 h-4"></i> High</div>
+                            <div class="text-3xl font-bold text-white" id="stat-high">0</div>
+                        </div>
+                        <div class="stat-box bg-red shadow-inset">
+                            <div class="flex items-center gap-2 mb-1 text-white opacity-90"><i data-lucide="alert-octagon" class="w-4 h-4"></i> Critical</div>
+                            <div class="text-3xl font-bold text-white" id="stat-crit">0</div>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <!-- Chart.js Integration for the Network Graph -->
+                        <div class="col-span-2 bg-dark-panel p-4 rounded-lg border-light">
+                            <h3 class="mb-2 text-sm text-muted uppercase font-bold tracking-widest">HMPI Distribution by Node</h3>
+                            <div style="height: 300px; width: 100%;">
+                                <canvas id="hmpiChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Metals Frequency Mapping -->
+                        <div class="col-span-1 bg-dark-panel p-4 rounded-lg border-light">
+                            <h3 class="mb-4 text-sm text-muted uppercase font-bold tracking-widest">Most Frequently Detected</h3>
+                            <div id="top-metals-list" class="space-y-4">
+                                <!-- Dynamic Progress Bars injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
         </main>
     </div>
 

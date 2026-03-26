@@ -63,11 +63,9 @@ function updateDashboardUI(data) {
         qualityBadge.textContent = statusObj.text;
         qualityBadge.className = `quality-badge ${statusObj.class}`;
         
-        // Critical Pulse inside sidebar
         if (data.HMPI >= 200) locAlertIcon.classList.remove('hidden');
         else locAlertIcon.classList.add('hidden');
 
-        // Render LocationDetails Extended UI
         hmpiProgressContainer.classList.remove('hidden');
         locExtendedDetails.classList.remove('hidden');
         
@@ -80,7 +78,6 @@ function updateDashboardUI(data) {
         statusDesc.textContent = statusObj.desc;
         statusRec.textContent = statusObj.rec;
 
-        // Extract Detected Heavy Metals Data (As, Pb, Cd, etc. from Backend)
         detectedMetalsGrid.innerHTML = '';
         const allMetals = ['As', 'Pb', 'Cd', 'Cr', 'Hg', 'U', 'Fe', 'Ni', 'Cu', 'Zn'];
         let foundMetals = 0;
@@ -91,7 +88,6 @@ function updateDashboardUI(data) {
             }
         });
         
-        // Fallback or Handle Manual Calculator Metals format
         if (foundMetals === 0) {
            if (data.metals && data.metals.length > 0) {
                data.metals.forEach(m => {
@@ -109,7 +105,6 @@ function updateDashboardUI(data) {
         else aiPredValue.textContent = "N/A";
 
     } else {
-        // Multi-point Overview reset
         locDetailsName.textContent = "Global Region View";
         locAlertIcon.classList.add('hidden');
         currentHmpi.textContent = "Multi";
@@ -161,12 +156,9 @@ function createMarker(loc) {
     if (hmpi >= 200) {
         const criticalIcon = L.divIcon({
             className: 'critical-marker-icon',
-            html: `
-                <div class="critical-marker-pulse"></div>
-                <div class="critical-marker-core"></div>
+            html: `<div class="critical-marker-pulse"></div><div class="critical-marker-core"></div>
                 <svg class="lucide-triangle" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-                    <path d="M12 9v4"/><path d="M12 17h.01"/>
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
                 </svg>`,
             iconSize: [20, 20], iconAnchor: [10, 10]
         });
@@ -181,12 +173,7 @@ function createMarker(loc) {
         <div class="popup-stat" style="margin-top: 5px;"><strong>Coords:</strong> ${lat.toFixed(4)}, ${lng.toFixed(4)}</div>
     `;
     marker.bindPopup(popupContent, { className: 'custom-popup' });
-    marker.on('click', () => {
-        selectedLocationId = loc.Sample_ID || loc.Latitude.toString();
-        updateDashboardUI(loc);
-        renderLocationCards();
-    });
-    
+    marker.on('click', () => { selectLocation(loc); });
     return marker;
 }
 
@@ -203,30 +190,19 @@ const COMMON_METALS = [
 let calcMetals = [{ name: 'Lead (Pb)', concentration: 0, standard: 0.01 }];
 
 const calcModal = document.getElementById('calculator-modal');
-const openCalcBtn = document.getElementById('open-calc-btn');
-const closeCalcBtn = document.getElementById('close-calc-btn');
+document.getElementById('open-calc-btn').onclick = () => { calcModal.classList.remove('hidden'); renderMetals(); };
+document.getElementById('close-calc-btn').onclick = () => calcModal.classList.add('hidden');
 const metalsContainer = document.getElementById('metals-container');
-const addMetalBtn = document.getElementById('add-metal-btn');
-const runCalcBtn = document.getElementById('run-calc-btn');
-
-openCalcBtn.onclick = () => { calcModal.classList.remove('hidden'); renderMetals(); };
-closeCalcBtn.onclick = () => calcModal.classList.add('hidden');
 
 function renderMetals() {
     metalsContainer.innerHTML = '';
     calcMetals.forEach((metal, index) => {
         const row = document.createElement('div');
         row.className = 'flex gap-2 items-center';
-        
         let options = '<option value="">Select Metal</option>';
-        COMMON_METALS.forEach(m => { options += `<option value="${m.name}" ${m.name === metal.name ? 'selected' : ''}>${m.name}</option>`; });
+        COMMON_METALS.forEach(m => options += `<option value="${m.name}" ${m.name === metal.name ? 'selected' : ''}>${m.name}</option>`);
         
-        row.innerHTML = `
-            <div class="flex-1"><select class="input-field w-full metal-name-select" data-index="${index}">${options}</select></div>
-            <div class="w-32"><input type="number" class="input-field w-full metal-conc-input" data-index="${index}" value="${metal.concentration}" placeholder="mg/L" step="0.001"></div>
-            <div class="w-32"><input type="number" class="input-field w-full metal-std-input" data-index="${index}" value="${metal.standard}" placeholder="Std" step="0.001"></div>
-        `;
-        
+        row.innerHTML = `<div class="flex-1"><select class="input-field w-full metal-name-select" data-index="${index}">${options}</select></div><div class="w-32"><input type="number" class="input-field w-full metal-conc-input" data-index="${index}" value="${metal.concentration}" placeholder="mg/L" step="0.001"></div><div class="w-32"><input type="number" class="input-field w-full metal-std-input" data-index="${index}" value="${metal.standard}" placeholder="Std" step="0.001"></div>`;
         if (calcMetals.length > 1) {
             const rmBtn = document.createElement('button');
             rmBtn.className = 'icon-btn'; rmBtn.innerHTML = '×';
@@ -236,50 +212,120 @@ function renderMetals() {
         metalsContainer.appendChild(row);
     });
 
-    document.querySelectorAll('.metal-name-select').forEach(sel => {
-        sel.onchange = (e) => {
-            const idx = e.target.dataset.index;
-            const found = COMMON_METALS.find(m => m.name === e.target.value);
-            if(found) { calcMetals[idx].name = found.name; calcMetals[idx].standard = found.standard; }
-            renderMetals();
-        };
+    document.querySelectorAll('.metal-name-select').forEach(sel => sel.onchange = (e) => {
+        const idx = e.target.dataset.index;
+        const found = COMMON_METALS.find(m => m.name === e.target.value);
+        if(found) { calcMetals[idx].name = found.name; calcMetals[idx].standard = found.standard; }
+        renderMetals();
     });
     document.querySelectorAll('.metal-conc-input').forEach(inp => inp.onchange = (e) => calcMetals[e.target.dataset.index].concentration = parseFloat(e.target.value) || 0);
     document.querySelectorAll('.metal-std-input').forEach(inp => inp.onchange = (e) => calcMetals[e.target.dataset.index].standard = parseFloat(e.target.value) || 0);
 }
-
-addMetalBtn.onclick = () => { calcMetals.push({ name: '', concentration: 0, standard: 0 }); renderMetals(); };
-
-runCalcBtn.onclick = () => {
+document.getElementById('add-metal-btn').onclick = () => { calcMetals.push({ name: '', concentration: 0, standard: 0 }); renderMetals(); };
+document.getElementById('run-calc-btn').onclick = () => {
     const locName = document.getElementById('calc-name').value;
     const lat = parseFloat(document.getElementById('calc-lat').value);
     const lng = parseFloat(document.getElementById('calc-lng').value);
-
-    if (!locName || isNaN(lat) || isNaN(lng)) { alert('Please fill in complete location details (Name, Lat, Lng)'); return; }
+    if (!locName || isNaN(lat) || isNaN(lng)) { alert('Please fill in complete location details'); return; }
 
     const validMetals = calcMetals.filter(m => m.name && m.concentration > 0 && m.standard > 0);
-    if (validMetals.length === 0) { alert('Please add at least one valid heavy metal concentration > 0'); return; }
+    if (validMetals.length === 0) return alert('Add at least one valid heavy metal concentration > 0');
 
     const subIndices = validMetals.map(m => (m.concentration / m.standard) * 100);
     const hmpi = subIndices.reduce((sum, si) => sum + si, 0) / validMetals.length;
 
-    const newLoc = {
-        Sample_ID: 'MANUAL: ' + locName, Latitude: lat, Longitude: lng, HMPI: hmpi, metals: validMetals
-    };
-
-    currentLocations.unshift(newLoc); 
-    selectedLocationId = newLoc.Sample_ID;
+    const newLoc = { Sample_ID: 'MANUAL: ' + locName, Latitude: lat, Longitude: lng, HMPI: hmpi, metals: validMetals };
+    currentLocations.unshift(newLoc); selectedLocationId = newLoc.Sample_ID;
     
     markersLayer.addLayer(createMarker(newLoc));
-    renderLocationCards();
-    updateDashboardUI(newLoc);
-    
+    renderLocationCards(); updateDashboardUI(newLoc);
     map.flyTo([lat, lng], 10, { duration: 1.5 });
     calcModal.classList.add('hidden');
 };
 
+// ----------------------------------------------------------------------
+// NEXT LEVEL INTEGRATION: ANALYTICAL STATISTICS DASHBOARD PORT
+// ----------------------------------------------------------------------
+let hmpiChartInstance = null;
+
+function renderGlobalStatistics() {
+    const locations = currentLocations;
+    if (!locations || locations.length === 0) return;
+
+    const low = locations.filter(l => l.HMPI < 50).length;
+    const mod = locations.filter(l => l.HMPI >= 50 && l.HMPI < 100).length;
+    const high = locations.filter(l => l.HMPI >= 100 && l.HMPI < 200).length;
+    const crit = locations.filter(l => l.HMPI >= 200).length;
+
+    document.getElementById('stat-low').textContent = low;
+    document.getElementById('stat-mod').textContent = mod;
+    document.getElementById('stat-high').textContent = high;
+    document.getElementById('stat-crit').textContent = crit;
+
+    const allMetals = ['As', 'Pb', 'Cd', 'Cr', 'Hg', 'U', 'Fe', 'Ni', 'Cu', 'Zn'];
+    let metalCounts = {};
+    allMetals.forEach(m => metalCounts[m] = 0);
+
+    locations.forEach(loc => {
+        allMetals.forEach(m => {
+            if (loc[m] && parseFloat(loc[m]) > 0) metalCounts[m]++;
+        });
+        if (loc.metals && loc.metals.length > 0) {
+            loc.metals.forEach(m => {
+                let sym = m.name.match(/\(([^)]+)\)/);
+                sym = sym ? sym[1] : m.name.substring(0,2);
+                if(metalCounts[sym] !== undefined) metalCounts[sym]++; else metalCounts[sym] = 1;
+            });
+        }
+    });
+
+    const topMetals = Object.entries(metalCounts)
+         .filter(entry => entry[1] > 0)
+         .sort((a,b) => b[1] - a[1]).slice(0, 5);
+
+    const topMetalsDiv = document.getElementById('top-metals-list');
+    topMetalsDiv.innerHTML = '';
+    topMetals.forEach(([metal, count]) => {
+        const pct = (count / locations.length) * 100;
+        topMetalsDiv.innerHTML += `
+            <div>
+                <div class="flex justify-between mb-1"><span class="font-bold text-main" style="font-size:0.9rem;">${metal}</span><span class="text-xs text-muted">${count} Site(s)</span></div>
+                <div class="progress-bar-bg" style="height:6px; background:rgba(255,255,255,0.05);">
+                    <div class="progress-bar-fill bg-blue" style="width:${pct}%; background:#3b82f6;"></div>
+                </div>
+            </div>`;
+    });
+
+    // Chart.js React Replacement
+    const ctx = document.getElementById('hmpiChart').getContext('2d');
+    const chartRenderLocs = locations.slice(0, 25); // Limit bars to top 25 so it doesnt crowd
+    
+    const labels = chartRenderLocs.map(l => l.Sample_ID || `Loc ${parseFloat(l.Latitude).toFixed(1)}`);
+    const dataVals = chartRenderLocs.map(l => l.HMPI);
+    const bgColors = chartRenderLocs.map(l => getStatusObject(l.HMPI).color);
+
+    if (hmpiChartInstance) hmpiChartInstance.destroy();
+
+    hmpiChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: labels, datasets: [{ label: 'HMPI Score', data: dataVals, backgroundColor: bgColors, borderRadius: 4 }] },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                x: { grid: { display:false }, ticks: { color: '#94a3b8', maxRotation: 45, minRotation: 45 } }
+            }
+        }
+    });
+}
+
+const statsModal = document.getElementById('stats-modal');
+document.getElementById('open-stats-btn').onclick = () => { statsModal.classList.remove('hidden'); renderGlobalStatistics(); };
+document.getElementById('close-stats-btn').onclick = () => statsModal.classList.add('hidden');
+
 // -------------------------------------------------------------
-// DATA FETCHING
+// DATA FETCHING MAPPER
 // -------------------------------------------------------------
 async function loadHistoricalData() {
     loadingOverlay.classList.remove('hidden');
@@ -292,7 +338,6 @@ async function loadHistoricalData() {
         data.forEach(point => markersLayer.addLayer(createMarker(point)));
         renderLocationCards();
         updateDashboardUI(data);
-
         map.fitBounds(L.latLngBounds(data.map(p => [p.Latitude, p.Longitude])), { padding: [50, 50] });
     } catch (err) { console.error(err); } 
     finally { loadingOverlay.classList.add('hidden'); }
@@ -303,7 +348,7 @@ async function fetchLiveData() {
     markersLayer.clearLayers();
     try {
         const response = await fetch(`${API_BASE}/live`);
-        const data = await response.json();
+        let data = await response.json();
 
         data.Sample_ID = 'LIVE_' + Math.floor(Math.random() * 10000);
         currentLocations = [data]; selectedLocationId = data.Sample_ID;
@@ -311,7 +356,6 @@ async function fetchLiveData() {
         markersLayer.addLayer(createMarker(data));
         renderLocationCards();
         updateDashboardUI(data);
-        
         map.flyTo([data.Latitude, data.Longitude], 8, { duration: 1.5 });
     } catch (err) { console.error(err); } 
     finally { loadingOverlay.classList.add('hidden'); }
