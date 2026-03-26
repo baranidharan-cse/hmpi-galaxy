@@ -49,13 +49,13 @@ def calculate_manual_hmpi(payload: MetalPayload):
 
 @app.post("/api/ai/predict")
 def predict_future_trend(payload: MetalPayload):
-    model_path = "models/rf_model.pkl"
+    model_path = "models/advanced_rf_model.pkl"
     if not os.path.exists(model_path):
-        return {"error": "AI Model not trained yet.", "predicted_hmpi": 0}
+        return {"error": "Advanced AI Model not trained yet.", "predicted_hmpi": 0}
     
     import joblib
     model = joblib.load(model_path)
-    # The Random Forest expects specific order: 'Latitude', 'Longitude', 'As', 'Pb', 'Cd', 'Cr', 'Hg', 'U', 'Fe'
+    # The Gradient Boosting network expects the strict parameter sequence boundary
     features = {
         'Latitude': payload.Latitude, 'Longitude': payload.Longitude,
         'As': payload.As, 'Pb': payload.Pb, 'Cd': payload.Cd, 
