@@ -46,8 +46,9 @@
             </div>
 
             <div class="controls">
-                <button id="refresh-btn" class="btn primary-btn"><i data-lucide="refresh-cw"></i> Fetch Live Data</button>
-                <button id="load-history-btn" class="btn secondary-btn"><i data-lucide="map"></i> Load Historical</button>
+                <button id="refresh-btn" class="btn primary-btn"><i data-lucide="refresh-cw"></i> Live Sync</button>
+                <button id="load-history-btn" class="btn secondary-btn"><i data-lucide="map"></i> Map</button>
+                <button id="open-calc-btn" class="btn primary-btn" title="Manual Calculator"><i data-lucide="calculator"></i> Calc</button>
             </div>
             
             <div class="location-list-header">
@@ -74,6 +75,52 @@
             <div id="loading-overlay" class="hidden">
                 <div class="spinner"></div>
                 <p>Analyzing Data...</p>
+            </div>
+
+            <!-- Next Level Component: Manual HMPI Calculator Modal -->
+            <div id="calculator-modal" class="hidden glass-modal">
+                <div class="modal-content card">
+                    <button id="close-calc-btn" class="close-btn"><i data-lucide="x"></i></button>
+                    <h2 class="modal-title flex items-center gap-2">
+                        <i data-lucide="calculator"></i> Add Custom Location
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <label>Location Name</label>
+                            <input type="text" id="calc-name" class="input-field" placeholder="e.g., Well Site A">
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="input-group">
+                                <label>Latitude</label>
+                                <input type="number" id="calc-lat" class="input-field" placeholder="28.6139" step="0.0001">
+                            </div>
+                            <div class="input-group">
+                                <label>Longitude</label>
+                                <input type="number" id="calc-lng" class="input-field" placeholder="77.2090" step="0.0001">
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex-between mb-2">
+                                <label class="text-sm">Heavy Metals Matrix</label>
+                                <button id="add-metal-btn" class="sm-text-btn text-blue flex items-center gap-1">
+                                    <i data-lucide="plus" style="width:14px;height:14px;"></i> Add Metal
+                                </button>
+                            </div>
+                            
+                            <div id="metals-container" class="space-y-3">
+                                <!-- Dynamic metals inject here -->
+                            </div>
+                            <div class="mt-2 text-xs text-muted">Concentration in mg/L. Standard defaults to WHO/EPA limits.</div>
+                        </div>
+
+                        <button id="run-calc-btn" class="btn primary-btn w-full mt-4 flex items-center justify-center gap-2">
+                            <i data-lucide="calculator"></i> Calculate & Plot Map
+                        </button>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

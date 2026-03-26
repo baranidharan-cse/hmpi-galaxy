@@ -24,7 +24,7 @@ const loadHistBtn = document.getElementById('load-history-btn');
 const loadingOverlay = document.getElementById('loading-overlay');
 const locationCardsContainer = document.getElementById('location-cards');
 
-// Converted User Logic: Generating precise status values based on the 4 provided thresholds
+// Status Categorization Logic
 function getStatusObject(hmpi) {
     if (hmpi < 50) return { color: '#22c55e', text: 'Low Pollution', class: 'quality-low-pollution', bgClass: 'bg-green', textClass: 'text-green' };
     if (hmpi < 100) return { color: '#eab308', text: 'Moderate', class: 'quality-moderate', bgClass: 'bg-yellow', textClass: 'text-yellow' };
@@ -39,11 +39,9 @@ function updateDashboardUI(data) {
         qualityBadge.textContent = statusObj.text;
         qualityBadge.className = `quality-badge ${statusObj.class}`;
         
-        if(data.Predicted_Future_HMPI) {
-            aiPredValue.textContent = data.Predicted_Future_HMPI.toFixed(1);
-        } else {
-            aiPredValue.textContent = "N/A";
-        }
+        if(data.Predicted_Future_HMPI) aiPredValue.textContent = data.Predicted_Future_HMPI.toFixed(1);
+        else if (data.Sample_ID.startsWith('MANUAL')) aiPredValue.textContent = "Calculated";
+        else aiPredValue.textContent = "N/A";
     } else {
         currentHmpi.textContent = "Multi-Point";
         qualityBadge.textContent = "Region View";
@@ -52,7 +50,6 @@ function updateDashboardUI(data) {
     }
 }
 
-// User Logic: Handling clicks on the cards grid or map pins to focus on specific zones
 function selectLocation(loc) {
     selectedLocationId = loc.Sample_ID || loc.Latitude.toString();
     map.flyTo([loc.Latitude, loc.Longitude], 9, { duration: 1.5 });
@@ -60,7 +57,6 @@ function selectLocation(loc) {
     renderLocationCards();
 }
 
-// User Logic: Rendering the grid of selectable location cards in the sidebar
 function renderLocationCards() {
     locationCardsContainer.innerHTML = '';
     
@@ -85,7 +81,6 @@ function renderLocationCards() {
     });
 }
 
-// Deep integration of the custom Marker logic
 function createMarker(loc) {
     const lat = loc.Latitude;
     const lng = loc.Longitude;
@@ -94,14 +89,12 @@ function createMarker(loc) {
 
     let marker;
     
-    // Applying the user's specific "AlertTriangle" pulsing marker for critical zones (>200)
     if (hmpi >= 200) {
         const criticalIcon = L.divIcon({
             className: 'critical-marker-icon',
             html: `
                 <div class="critical-marker-pulse"></div>
                 <div class="critical-marker-core"></div>
-                <!-- Inline glowing SVG alert triangle matching lucide-react -->
                 <svg class="lucide-triangle" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
                     <path d="M12 9v4"/><path d="M12 17h.01"/>
@@ -140,7 +133,143 @@ function createMarker(loc) {
     return marker;
 }
 
-// Data Fetching logic
+// -------------------------------------------------------------
+// NEXT LEVEL INTEGRATION: MANUAL HMPI CALCULATOR OVERLAY COMPONENT
+// -------------------------------------------------------------
+const COMMON_METALS = [
+  { name: 'Lead (Pb)', standard: 0.01 }, { name: 'Arsenic (As)', standard: 0.01 },
+  { name: 'Cadmium (Cd)', standard: 0.003 }, { name: 'Chromium (Cr)', standard: 0.05 },
+  { name: 'Mercury (Hg)', standard: 0.001 }, { name: 'Nickel (Ni)', standard: 0.02 },
+  { name: 'Copper (Cu)', standard: 2.0 }, { name: 'Zinc (Zn)', standard: 3.0 },
+  { name: 'Uranium (U)', standard: 0.03 }
+];
+
+let calcMetals = [{ name: 'Lead (Pb)', concentration: 0, standard: 0.01 }];
+
+const calcModal = document.getElementById('calculator-modal');
+const openCalcBtn = document.getElementById('open-calc-btn');
+const closeCalcBtn = document.getElementById('close-calc-btn');
+const metalsContainer = document.getElementById('metals-container');
+const addMetalBtn = document.getElementById('add-metal-btn');
+const runCalcBtn = document.getElementById('run-calc-btn');
+
+openCalcBtn.onclick = () => { calcModal.classList.remove('hidden'); renderMetals(); };
+closeCalcBtn.onclick = () => calcModal.classList.add('hidden');
+
+function renderMetals() {
+    metalsContainer.innerHTML = '';
+    calcMetals.forEach((metal, index) => {
+        const row = document.createElement('div');
+        row.className = 'flex gap-2 items-start';
+        
+        let options = '<option value="">Select Metal</option>';
+        COMMON_METALS.forEach(m => {
+            options += `<option value="${m.name}" ${m.name === metal.name ? 'selected' : ''}>${m.name}</option>`;
+        });
+        
+        row.innerHTML = `
+            <div class="flex-1">
+                <select class="input-field w-full metal-name-select" data-index="${index}">
+                    ${options}
+                </select>
+            </div>
+            <div class="w-32">
+                <input type="number" class="input-field w-full metal-conc-input" data-index="${index}" value="${metal.concentration}" placeholder="mg/L" step="0.001">
+            </div>
+            <div class="w-32">
+                <input type="number" class="input-field w-full metal-std-input" data-index="${index}" value="${metal.standard}" placeholder="Std" step="0.001">
+            </div>
+        `;
+        
+        if (calcMetals.length > 1) {
+            const rmBtn = document.createElement('button');
+            rmBtn.className = 'icon-btn';
+            rmBtn.innerHTML = '×';
+            rmBtn.title = "Remove Metal";
+            rmBtn.onclick = () => { calcMetals.splice(index, 1); renderMetals(); };
+            row.appendChild(rmBtn);
+        }
+        
+        metalsContainer.appendChild(row);
+    });
+
+    document.querySelectorAll('.metal-name-select').forEach(sel => {
+        sel.onchange = (e) => {
+            const idx = e.target.dataset.index;
+            const val = e.target.value;
+            const found = COMMON_METALS.find(m => m.name === val);
+            if(found) {
+                calcMetals[idx].name = found.name;
+                calcMetals[idx].standard = found.standard;
+            }
+            renderMetals();
+        };
+    });
+    document.querySelectorAll('.metal-conc-input').forEach(inp => {
+        inp.onchange = (e) => calcMetals[e.target.dataset.index].concentration = parseFloat(e.target.value) || 0;
+    });
+    document.querySelectorAll('.metal-std-input').forEach(inp => {
+        inp.onchange = (e) => calcMetals[e.target.dataset.index].standard = parseFloat(e.target.value) || 0;
+    });
+}
+
+addMetalBtn.onclick = () => {
+    calcMetals.push({ name: '', concentration: 0, standard: 0 });
+    renderMetals();
+};
+
+runCalcBtn.onclick = () => {
+    const locName = document.getElementById('calc-name').value;
+    const lat = parseFloat(document.getElementById('calc-lat').value);
+    const lng = parseFloat(document.getElementById('calc-lng').value);
+
+    if (!locName || isNaN(lat) || isNaN(lng)) {
+        alert('Please fill in complete location details (Name, Lat, Lng)');
+        return;
+    }
+
+    const validMetals = calcMetals.filter(m => m.name && m.concentration > 0 && m.standard > 0);
+    if (validMetals.length === 0) {
+        alert('Please add at least one Heavy Metal with a concentration > 0');
+        return;
+    }
+
+    // HMPI React Formula Integration: HMPI = (1/n) × Σ(Ci/Si × 100)
+    const subIndices = validMetals.map(m => (m.concentration / m.standard) * 100);
+    const hmpi = subIndices.reduce((sum, si) => sum + si, 0) / validMetals.length;
+
+    const statusObj = getStatusObject(hmpi);
+
+    const newLoc = {
+        Sample_ID: 'MANUAL: ' + locName,
+        Latitude: lat,
+        Longitude: lng,
+        HMPI: hmpi,
+        Status: statusObj.text,
+        Date: new Date().toISOString().split('T')[0]
+    };
+
+    // Plot on map and update UI
+    currentLocations.unshift(newLoc); // Add target to top of list
+    selectedLocationId = newLoc.Sample_ID;
+    
+    markersLayer.addLayer(createMarker(newLoc));
+    renderLocationCards();
+    updateDashboardUI(newLoc);
+    
+    map.flyTo([lat, lng], 10, { duration: 1.5 });
+    calcModal.classList.add('hidden');
+    
+    // Reset Form
+    document.getElementById('calc-name').value = '';
+    document.getElementById('calc-lat').value = '';
+    document.getElementById('calc-lng').value = '';
+    calcMetals = [{ name: 'Lead (Pb)', concentration: 0, standard: 0.01 }];
+};
+
+// -------------------------------------------------------------
+// ORIGINAL FETCH LOGIC
+// -------------------------------------------------------------
 async function loadHistoricalData() {
     loadingOverlay.classList.remove('hidden');
     markersLayer.clearLayers();
@@ -148,6 +277,8 @@ async function loadHistoricalData() {
         const response = await fetch(`${API_BASE}/data`);
         let data = await response.json();
         
+        data.forEach(d => d.Status = getStatusObject(d.HMPI).text);
+
         currentLocations = data;
         selectedLocationId = null;
         
@@ -171,6 +302,7 @@ async function fetchLiveData() {
         const response = await fetch(`${API_BASE}/live`);
         const data = await response.json();
 
+        data.Status = getStatusObject(data.HMPI).text;
         data.Sample_ID = 'LIVE_' + Math.floor(Math.random() * 10000);
         currentLocations = [data]; 
         selectedLocationId = data.Sample_ID;
