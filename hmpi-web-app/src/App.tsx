@@ -84,19 +84,19 @@ export default function App() {
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
       {/* Official Top Banner */}
       <div className="bg-orange-500 text-white text-xs font-bold px-4 py-1 flex justify-between tracking-widest uppercase">
-        <span>Government of India</span>
-        <span>Ministry of Jal Shakti</span>
+        <span>Strategic Analytical Dashboard</span>
+        <span>Environment Intelligence System</span>
       </div>
       
       <header className="bg-[#003366] text-white shadow-md border-b-4 border-green-600 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="bg-white p-2 rounded-full hidden sm:block">
-               <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem" className="w-10 h-10 object-contain" />
+            <div className="bg-white p-2 rounded-full hidden sm:block shadow-inner">
+               <Droplets className="w-8 h-8 text-[#003366]" />
             </div>
             <div>
-              <h1 className="text-xl md:text-2xl font-serif font-black tracking-wide">CENTRAL GROUNDWATER BOARD</h1>
-              <p className="text-blue-200 text-xs md:text-sm font-semibold tracking-widest uppercase">National HMPI Monitoring Portal</p>
+              <h1 className="text-xl md:text-2xl font-serif font-black tracking-wide">HMPI GALAXY</h1>
+              <p className="text-blue-200 text-xs md:text-sm font-semibold tracking-widest uppercase">AI-Powered Groundwater Monitoring Portal</p>
             </div>
           </div>
           <button 
@@ -152,7 +152,7 @@ export default function App() {
 
       <footer className="bg-slate-800 border-t-4 border-orange-500 text-slate-300 mt-8">
         <div className="container mx-auto px-4 py-6 text-center text-xs font-semibold uppercase tracking-wider">
-          <p className="mb-2">Powered by the National Informatics Centre (NIC) framework standard.</p>
+          <p className="mb-2">Advanced Hackathon Implementation Architecture by CHEMOVATE 2.0</p>
           <p>Heavy Metal Pollution Index mapped strictly to BIS (IS-10500:2012) Statutory Guidelines.</p>
         </div>
       </footer>
