@@ -22,25 +22,56 @@
             </div>
             
             <div class="dashboard-cards">
-                <div class="card live-status-card">
-                    <h3>Live System Status</h3>
-                    <div class="status-indicator">
-                        <span class="pulse"></span> Active (WRIS Sync)
+                <div class="flex gap-2">
+                    <div class="card live-status-card flex-1">
+                        <h3>System Status</h3>
+                        <div class="status-indicator">
+                            <span class="pulse"></span> Active Sync
+                        </div>
+                    </div>
+
+                    <div class="card ai-prediction-card flex-1">
+                        <h3>AI Forecast</h3>
+                        <div class="prediction-value" id="ai-pred-value" style="font-size:1.8rem;">--</div>
+                        <p class="prediction-label text-xs mt-1">Expected Trend</p>
                     </div>
                 </div>
 
-                <div class="card ai-prediction-card">
-                    <h3>AI Trend Prediction</h3>
-                    <div class="prediction-value" id="ai-pred-value">--</div>
-                    <p class="prediction-label">Forecasted HMPI</p>
-                </div>
-
+                <!-- Next-Level Integration: Comprehensive Location Details Panel -->
                 <div class="card summary-card" id="region-card">
-                    <h3>Region Quality</h3>
-                    <div class="quality-badge" id="quality-badge">Awaiting Data</div>
-                    <div class="stat-row">
-                        <span>Current HMPI:</span>
-                        <strong id="current-hmpi">--</strong>
+                    <div class="flex-between mb-2">
+                        <h3 id="loc-details-name" style="margin-bottom:0;">Region Overview</h3>
+                        <i data-lucide="alert-triangle" id="loc-alert-icon" class="text-red hidden pulse" style="width:20px;height:20px;"></i>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="quality-badge" id="quality-badge" style="margin-bottom:0;">Awaiting Data</div>
+                        <strong id="current-hmpi" class="text-2xl">--</strong>
+                    </div>
+
+                    <!-- Visual HMPI Progress Bar -->
+                    <div class="progress-container hidden" id="hmpi-progress-container">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="hmpi-progress"></div>
+                        </div>
+                    </div>
+
+                    <!-- Extended Assessment Data -->
+                    <div id="loc-extended-details" class="hidden mt-4 pt-3" style="border-top:1px solid rgba(255,255,255,0.1);">
+                        <div class="detail-section mb-3">
+                            <h4 class="flex items-center gap-1 mb-2 text-sm text-main"><i data-lucide="droplet" class="w-4 h-4 text-blue"></i> Detected Metals</h4>
+                            <div id="detected-metals-grid" class="metals-grid">
+                                <!-- Metal Tags injected here -->
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4 class="flex items-center gap-1 mb-1 text-sm text-main"><i data-lucide="trending-up" class="w-4 h-4 text-blue"></i> Assessment</h4>
+                            <p id="status-desc" class="text-xs text-muted mb-2"></p>
+                            <div class="recommendation-box">
+                                <strong class="text-blue">Recommendation:</strong> <span id="status-rec"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -63,7 +94,6 @@
         <main class="map-area">
             <div id="map"></div>
             
-            <!-- Map Legend Overlays -->
             <div class="map-legend">
                 <div class="legend-item"><div class="dot bg-green"></div><span>Low (&lt;50)</span></div>
                 <div class="legend-item"><div class="dot bg-yellow"></div><span>Moderate (50-100)</span></div>
@@ -71,13 +101,12 @@
                 <div class="legend-item"><div class="dot bg-red"></div><span>Critical (&gt;200)</span></div>
             </div>
 
-            <!-- Overlay for loading -->
             <div id="loading-overlay" class="hidden">
                 <div class="spinner"></div>
                 <p>Analyzing Data...</p>
             </div>
 
-            <!-- Next Level Component: Manual HMPI Calculator Modal -->
+            <!-- Manual HMPI Calculator Modal -->
             <div id="calculator-modal" class="hidden glass-modal">
                 <div class="modal-content card">
                     <button id="close-calc-btn" class="close-btn"><i data-lucide="x"></i></button>
@@ -110,9 +139,7 @@
                                 </button>
                             </div>
                             
-                            <div id="metals-container" class="space-y-3">
-                                <!-- Dynamic metals inject here -->
-                            </div>
+                            <div id="metals-container" class="space-y-3"></div>
                             <div class="mt-2 text-xs text-muted">Concentration in mg/L. Standard defaults to WHO/EPA limits.</div>
                         </div>
 
@@ -129,7 +156,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="app.js"></script>
     <script>
-        lucide.createIcons(); // Initialize the sleek Lucide icons instantly
+        lucide.createIcons();
     </script>
 </body>
 </html>
