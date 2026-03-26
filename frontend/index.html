@@ -19,8 +19,11 @@
         <!-- Glassmorphism Sidebar -->
         <aside class="sidebar">
             <div class="logo">
-                <h1>HMPI <span>Galaxy</span></h1>
-                <p>Groundwater Monitoring System</p>
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                    <i data-lucide="droplets" class="text-blue" style="width:28px;height:28px; filter:drop-shadow(0 0 5px #3b82f6);"></i>
+                    <h1 style="margin:0;">HMPI <span>Galaxy</span></h1>
+                </div>
+                <p>Groundwater Quality Assessment System</p>
             </div>
             
             <div class="dashboard-cards">
@@ -86,6 +89,10 @@
             </div>
             <div class="location-cards-container" id="location-cards">
                 <!-- Location buttons injected here rapidly -->
+            </div>
+
+            <div class="sidebar-footer" style="margin-top:0.5rem; font-size:0.7rem; color:var(--text-muted); text-align:center; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.1); line-height:1.4;">
+                <p>Heavy Metal Pollution Index (HMPI) is objectively calculated based on <strong>WHO/EPA</strong> and <strong>BIS</strong> standards for groundwater quality assessment.</p>
             </div>
         </aside>
 
