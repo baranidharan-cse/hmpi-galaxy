@@ -45,52 +45,84 @@ export function Statistics({ locations }: StatisticsProps) {
     .slice(0, 5);
 
   return (
-    <div className="space-y-6 bg-white text-slate-800">
+    <div className="space-y-8 bg-white text-slate-800 font-sans">
       <div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-sm p-4 border-2 border-slate-200">
-            <div className="flex items-center gap-2 mb-2 border-b pb-2 border-slate-100">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <span className="font-bold text-slate-700 uppercase text-xs">Safe Zones</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+          <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all group">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="bg-green-50 p-1.5 rounded-lg group-hover:bg-green-100 transition-colors">
+                 <CheckCircle className="w-4 h-4 text-green-600" />
+              </div>
+              <span className="font-semibold text-slate-500 uppercase text-[10px] tracking-wider">Safe Zones</span>
             </div>
-            <div className="text-3xl font-black text-green-700">{lowPollution}</div>
+            <div className="flex items-baseline gap-2">
+                <div className="text-3xl font-bold text-slate-800">{lowPollution}</div>
+                <div className="text-xs font-semibold text-green-500">Nodes</div>
+            </div>
+            <div className="w-full bg-slate-50 h-1 mt-4 rounded-full overflow-hidden">
+                <div className="bg-green-500 h-full rounded-full" style={{ width: '100%' }}></div>
+            </div>
           </div>
 
-          <div className="bg-white rounded-sm p-4 border-2 border-slate-200">
-            <div className="flex items-center gap-2 mb-2 border-b pb-2 border-slate-100">
-              <AlertCircle className="w-5 h-5 text-yellow-500" />
-              <span className="font-bold text-slate-700 uppercase text-xs">Moderate</span>
+          <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all group">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="bg-yellow-50 p-1.5 rounded-lg group-hover:bg-yellow-100 transition-colors">
+                 <AlertCircle className="w-4 h-4 text-yellow-600" />
+              </div>
+              <span className="font-semibold text-slate-500 uppercase text-[10px] tracking-wider">Moderate</span>
             </div>
-            <div className="text-3xl font-black text-yellow-600">{moderate}</div>
+            <div className="flex items-baseline gap-2">
+                <div className="text-3xl font-bold text-slate-800">{moderate}</div>
+                <div className="text-xs font-semibold text-yellow-600">Nodes</div>
+            </div>
+             <div className="w-full bg-slate-50 h-1 mt-4 rounded-full overflow-hidden">
+                <div className="bg-yellow-500 h-full rounded-full w-3/4"></div>
+            </div>
           </div>
 
-          <div className="bg-white rounded-sm p-4 border-2 border-slate-200">
-             <div className="flex items-center gap-2 mb-2 border-b pb-2 border-slate-100">
-              <AlertCircle className="w-5 h-5 text-orange-500" />
-              <span className="font-bold text-slate-700 uppercase text-xs">Elevated</span>
+          <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all group">
+             <div className="flex items-center gap-2 mb-3">
+              <div className="bg-orange-50 p-1.5 rounded-lg group-hover:bg-orange-100 transition-colors">
+                 <AlertCircle className="w-4 h-4 text-orange-600" />
+              </div>
+              <span className="font-semibold text-slate-500 uppercase text-[10px] tracking-wider">Elevated</span>
             </div>
-            <div className="text-3xl font-black text-orange-600">{high}</div>
+            <div className="flex items-baseline gap-2">
+                <div className="text-3xl font-bold text-slate-800">{high}</div>
+                <div className="text-xs font-semibold text-orange-600">Nodes</div>
+            </div>
+            <div className="w-full bg-slate-50 h-1 mt-4 rounded-full overflow-hidden">
+                <div className="bg-orange-500 h-full rounded-full w-1/2"></div>
+            </div>
           </div>
 
-          <div className="bg-white rounded-sm p-4 border-2 border-slate-200">
-            <div className="flex items-center gap-2 mb-2 border-b pb-2 border-slate-100">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <span className="font-bold text-slate-700 uppercase text-xs">Critical</span>
+          <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all group">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="bg-red-50 p-1.5 rounded-lg group-hover:bg-red-100 transition-colors">
+                 <AlertCircle className="w-4 h-4 text-red-600" />
+              </div>
+              <span className="font-semibold text-slate-500 uppercase text-[10px] tracking-wider">Critical</span>
             </div>
-            <div className="text-3xl font-black text-red-700">{critical}</div>
+            <div className="flex items-baseline gap-2">
+                <div className="text-3xl font-bold text-slate-800">{critical}</div>
+                <div className="text-xs font-semibold text-red-600">Nodes</div>
+            </div>
+             <div className="w-full bg-slate-50 h-1 mt-4 rounded-full overflow-hidden">
+                <div className="bg-red-500 h-full rounded-full w-1/4"></div>
+            </div>
           </div>
         </div>
 
         {locations.length > 0 && (
-          <div>
-            <div className="bg-slate-50 p-2 border border-slate-300">
+          <div className="mb-8">
+            <div className="bg-white pt-2">
                 <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#cbd5e1" />
-                    <XAxis dataKey="name" angle={-35} textAnchor="end" height={80} tick={{fontSize: 11, fill: '#475569'}} />
-                    <YAxis tick={{fontSize: 12, fill: '#334155', fontWeight: 'bold'}} />
-                    <Tooltip contentStyle={{ borderRadius: '0px', border: '1px solid #94a3b8', backgroundColor: '#fff', boxShadow: 'none', color: '#0f172a' }} cursor={{fill: 'rgba(0,0,0,0.05)'}} />
-                    <Bar dataKey="hmpi" maxBarSize={50}>
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" angle={-35} textAnchor="end" height={80} tick={{fontSize: 10, fill: '#64748b'}} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} />
+                    <YAxis tick={{fontSize: 10, fill: '#64748b', fontWeight: '500'}} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #f1f5f9', backgroundColor: 'rgba(255, 255, 255, 0.95)', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', color: '#0f172a', fontWeight: 'bold' }} cursor={{fill: 'rgba(241,245,249,0.5)'}} />
+                    <Bar dataKey="hmpi" maxBarSize={40} radius={[4, 4, 0, 0]}>
                     {chartData.map((entry) => (
                         <Cell key={`cell-${entry.id}`} fill={getBarColor(entry.hmpi)} />
                     ))}
@@ -103,22 +135,23 @@ export function Statistics({ locations }: StatisticsProps) {
       </div>
 
       {topMetals.length > 0 && (
-        <div className="pt-4 border-t-2 border-slate-200">
-          <h2 className="mb-4 font-bold text-[#003366] text-sm uppercase">
-            Official Contamination Frequency
+        <div className="pt-6 border-t border-slate-100">
+          <h2 className="mb-5 font-bold text-slate-800 text-sm flex justify-between items-center">
+            <span>Contamination Frequency (QA/QC)</span>
+            <span className="text-[10px] font-normal text-slate-400 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">Top 5 Analyzed</span>
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {topMetals.map(([metal, count]) => (
-              <div key={metal} className="bg-white p-2 border-2 border-slate-200">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-bold text-slate-700 text-sm">{metal}</span>
-                  <span className="text-xs font-bold px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-300">
-                    {count} Zones Detected
+              <div key={metal} className="group cursor-pointer">
+                <div className="flex justify-between items-end mb-1.5">
+                  <span className="font-bold text-slate-700 text-sm group-hover:text-teal-600 transition-colors">{metal}</span>
+                  <span className="text-xs font-semibold text-slate-500">
+                    {count} Zones
                   </span>
                 </div>
-                <div className="w-full bg-slate-200 h-2 overflow-hidden border border-slate-300">
+                <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                   <div
-                    className="bg-[#003366] h-full"
+                    className="bg-teal-500 h-full rounded-full transition-all duration-1000 ease-out"
                     style={{ width: `${(count / locations.length) * 100}%` }}
                   ></div>
                 </div>

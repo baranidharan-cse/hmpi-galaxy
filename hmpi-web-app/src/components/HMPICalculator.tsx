@@ -92,58 +92,60 @@ export function HMPICalculator({ onCalculate }: HMPICalculatorProps) {
   };
 
   return (
-    <div className="bg-white p-2 text-slate-800">
-      <div className="space-y-5">
+    <div className="bg-white p-2 text-slate-800 font-sans">
+      <div className="space-y-6">
         <div>
-            <label className="block text-xs font-bold tracking-widest uppercase text-[#003366] mb-1">Testing Site Identifier</label>
-            <input type="text" value={locationName} onChange={e => setLocationName(e.target.value)} className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-sm focus:outline-none focus:border-[#003366] text-slate-800 placeholder-slate-400" placeholder="e.g., Regional Monitor A2" />
+            <label className="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-1.5 flex items-center gap-2">
+               Testing Site Identifier
+            </label>
+            <input type="text" value={locationName} onChange={e => setLocationName(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 text-slate-800 placeholder-slate-400 transition-all font-medium text-sm" placeholder="e.g., Regional Monitor A2" />
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-5">
             <div>
-                <label className="block text-xs font-bold tracking-widest uppercase text-[#003366] mb-1">Latitude</label>
-                <input type="number" value={lat} onChange={e => setLat(e.target.value)} className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-sm focus:outline-none focus:border-[#003366] text-slate-800 placeholder-slate-400" placeholder="12.9716" />
+                <label className="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-1.5">Latitude</label>
+                <input type="number" value={lat} onChange={e => setLat(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 text-slate-800 placeholder-slate-400 transition-all text-sm font-mono" placeholder="12.9716" />
             </div>
             <div>
-                <label className="block text-xs font-bold tracking-widest uppercase text-[#003366] mb-1">Longitude</label>
-                <input type="number" value={lng} onChange={e => setLng(e.target.value)} className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-sm focus:outline-none focus:border-[#003366] text-slate-800 placeholder-slate-400" placeholder="77.5946" />
+                <label className="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-1.5">Longitude</label>
+                <input type="number" value={lng} onChange={e => setLng(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 text-slate-800 placeholder-slate-400 transition-all text-sm font-mono" placeholder="77.5946" />
             </div>
         </div>
 
-        <div className="mt-4 border-t-2 border-slate-200 pt-4">
-            <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold text-[#003366] text-sm uppercase">Heavy Metal Sub-Matrix</h3>
-                <button onClick={addMetal} className="flex items-center gap-1 text-xs text-green-700 hover:text-green-800 font-bold bg-green-50 border border-green-200 px-2 py-1 rounded-sm transition-colors">
-                    <Plus className="w-4 h-4" /> ADD ENTRY
+        <div className="mt-8 border-t border-slate-100 pt-6">
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold text-slate-700 text-sm flex items-center gap-2">Heavy Metal Sub-Matrix</h3>
+                <button onClick={addMetal} className="flex items-center gap-1.5 text-[11px] text-teal-700 hover:text-white hover:bg-teal-600 font-bold bg-teal-50 border border-teal-200 px-3 py-1.5 rounded-lg transition-all shadow-sm">
+                    <Plus className="w-3.5 h-3.5" /> ADD ENTRY
                 </button>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
                 {metals.map((metal) => (
-                    <div key={metal.id} className="flex gap-2 items-center bg-slate-50 p-2 rounded-sm border border-slate-200">
+                    <div key={metal.id} className="flex gap-3 items-center bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-teal-500/20 focus-within:border-teal-400 transition-all">
                         <select 
                             value={metal.name} 
                             onChange={(e) => updateMetal(metal.id, 'name', e.target.value)}
-                            className="flex-1 px-2 py-1 bg-white border border-slate-300 rounded-sm text-sm text-slate-800 focus:border-[#003366] outline-none font-medium"
+                            className="flex-1 bg-transparent text-sm text-slate-700 outline-none font-semibold cursor-pointer appearance-none"
                         >
-                            <option value="">Select Target...</option>
+                            <option value="" disabled className="text-slate-400">Select Parameter...</option>
                             {COMMON_METALS.map(m => <option key={m.name} value={m.name}>{m.name}</option>)}
                         </select>
                         <div className="w-24">
-                            <input type="number" value={metal.concentration || ''} onChange={e => updateMetal(metal.id, 'concentration', parseFloat(e.target.value))} className="w-full px-2 py-1 bg-white border border-slate-300 rounded-sm text-sm text-slate-800 focus:border-[#003366] outline-none" placeholder="mg/L" step="0.001" />
+                            <input type="number" value={metal.concentration || ''} onChange={e => updateMetal(metal.id, 'concentration', parseFloat(e.target.value))} className="w-full bg-slate-50 px-3 py-1.5 rounded-lg text-sm text-slate-800 placeholder-slate-400 outline-none border border-slate-100 font-mono focus:border-teal-300 transition-colors" placeholder="mg/L" step="0.001" />
                         </div>
-                        <div className="w-20 hidden sm:block">
-                            <input title="Standard Limit" type="number" value={metal.standard || ''} onChange={e => updateMetal(metal.id, 'standard', parseFloat(e.target.value))} className="w-full px-2 py-1 bg-slate-100 border border-slate-300 text-slate-500 rounded-sm text-sm cursor-not-allowed font-bold" placeholder="Std" step="0.001" readOnly />
+                        <div className="w-16 hidden sm:block">
+                            <input title="Standard Limit" type="number" value={metal.standard || ''} onChange={e => updateMetal(metal.id, 'standard', parseFloat(e.target.value))} className="w-full bg-transparent text-slate-400 text-xs cursor-not-allowed font-bold text-center outline-none" placeholder="Std" step="0.001" readOnly />
                         </div>
-                        <button onClick={() => removeMetal(metal.id)} className="p-1 text-red-600 hover:bg-red-100 rounded-sm transition-colors">
+                        <button onClick={() => removeMetal(metal.id)} className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
                             <Trash2 className="w-4 h-4" />
                         </button>
                     </div>
                 ))}
             </div>
             
-            <button onClick={handleCalculate} className="mt-6 w-full bg-[#003366] text-white font-bold tracking-widest uppercase py-3 rounded-sm hover:bg-blue-900 transition-colors shadow-sm border border-blue-950 flex justify-center items-center gap-2">
-                <Calculator className="w-4 h-4" /> COMPUTE DIAGNOSTICS
+            <button onClick={handleCalculate} className="mt-8 w-full bg-teal-600 text-white font-bold tracking-widest uppercase py-3.5 rounded-xl hover:bg-teal-500 transition-all shadow-lg hover:shadow-teal-500/30 flex justify-center items-center gap-2 text-sm">
+                <Calculator className="w-4 h-4" /> COMPUTE QA/QC DIAGNOSTICS
             </button>
         </div>
       </div>

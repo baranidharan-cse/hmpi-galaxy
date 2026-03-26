@@ -49,26 +49,34 @@ export function LocationMap({ locations, onLocationSelect, selectedLocationId }:
   const centerPosition: [number, number] = [20.5937, 78.9629]; // Default India Center
 
   return (
-    <div className="w-full h-full relative" style={{ minHeight: '400px', zIndex: 0 }}>
+    <div className="w-full h-full relative" style={{ minHeight: '450px', zIndex: 0 }}>
+      {/* Floating Glass Panel */}
+      <div className="absolute top-4 right-4 z-[400] bg-white/90 backdrop-blur-md px-4 py-2 border border-slate-200 shadow-lg rounded-xl flex items-center gap-3">
+          <div className="flex -space-x-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse border border-white shadow-[0_0_8px_rgba(20,184,166,0.6)]"></span>
+          </div>
+          <span className="text-xs font-bold text-slate-700 tracking-wide">Live Aquifer Sync</span>
+      </div>
+
       <MapContainer 
         center={centerPosition} 
-        zoom={4} 
-        style={{ height: '100%', width: '100%', minHeight: '400px' }}
+        zoom={5} 
+        style={{ height: '100%', width: '100%', minHeight: '450px' }}
         scrollWheelZoom={true}
+        zoomControl={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
         
         <MapAutoFly selectedLocation={selectedLoc} />
 
         {locations.map((loc) => {
             const markerColor = getStatusColor(loc.hmpi);
-            // Create a custom colored circle marker for government styling
             const customIcon = L.divIcon({
                 className: 'custom-div-icon',
-                html: `<div style="background-color: ${markerColor}; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
+                html: `<div style="background-color: ${markerColor}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.2s;"></div>`,
                 iconSize: [20, 20],
                 iconAnchor: [10, 10]
             });
@@ -80,20 +88,19 @@ export function LocationMap({ locations, onLocationSelect, selectedLocationId }:
                     icon={customIcon}
                     eventHandlers={{ click: () => onLocationSelect(loc) }}
                 >
-                    <Popup className="gov-popup">
-                        <div className="text-slate-800 font-sans min-w-[200px]">
-                            <h3 className="font-extrabold text-[#003366] border-b-2 border-slate-200 pb-1 mb-2 uppercase text-xs tracking-wider">
+                    <Popup className="saas-popup">
+                        <div className="text-slate-800 font-sans min-w-[220px] p-1">
+                            <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3 uppercase text-[11px] tracking-wider flex justify-between items-center">
                                 {loc.name}
+                                <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[9px]">ID: {loc.id.substring(0,6)}</span>
                             </h3>
-                            <div className="grid grid-cols-2 gap-2 text-xs mb-2">
-                                <div className="font-bold text-slate-500">Latitude:</div>
-                                <div className="text-right font-mono">{loc.lat.toFixed(4)}</div>
-                                <div className="font-bold text-slate-500">Longitude:</div>
-                                <div className="text-right font-mono">{loc.lng.toFixed(4)}</div>
+                            <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-[10px] mb-4">
+                                <div className="font-semibold text-slate-400 uppercase tracking-widest">Coordinates</div>
+                                <div className="text-right font-mono text-slate-600 bg-slate-50 px-1 py-0.5 rounded">{loc.lat.toFixed(4)}, {loc.lng.toFixed(4)}</div>
                             </div>
-                            <div className="bg-slate-100 p-2 rounded-sm border border-slate-200 mt-3">
-                                <div className="text-xs font-bold text-slate-600 mb-1">Toxicity Metric (HMPI)</div>
-                                <div className="text-lg font-black" style={{ color: markerColor }}>
+                            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-3 rounded-xl border border-slate-200/60 shadow-inner">
+                                <div className="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-widest">Toxicity Index</div>
+                                <div className="text-2xl font-black tracking-tight" style={{ color: markerColor }}>
                                     {loc.hmpi.toFixed(2)}
                                 </div>
                             </div>
