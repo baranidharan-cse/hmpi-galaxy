@@ -37,21 +37,34 @@ export default function App() {
     };
   };
 
-  const fetchGlobalData = async () => {
+  const fetchHistoricalData = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/data`);
+      const response = await fetch(`${API_BASE}/map/nodes`);
       const data = await response.json();
       setLocations(data.map(mapBackendToLocation));
     } catch (e) {
-      console.error("Backend offline", e);
+      console.error("Backend historical fetch failing", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchLiveWrisSync = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/wris/sync`);
+      const data = await response.json();
+      setLocations(prev => [...data.map(mapBackendToLocation), ...prev]);
+    } catch (e) {
+      console.error("WRIS Live Sync failing", e);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchGlobalData();
+    fetchHistoricalData();
   }, []);
 
   const handleCalculate = (result: { hmpi: number; metals: { name: string; concentration: number; standard: number }[]; locationName: string; lat: number; lng: number; }) => {
@@ -78,7 +91,7 @@ export default function App() {
               <p className="text-blue-100 text-xs md:text-sm font-medium">Groundwater Quality Assessment System</p>
             </div>
           </div>
-          <button onClick={fetchGlobalData} className="flex items-center gap-2 bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded-lg font-bold transition shadow-inner">
+          <button onClick={fetchLiveWrisSync} className="flex items-center gap-2 bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded-lg font-bold transition shadow-inner">
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> {loading ? 'Syncing...' : 'Live Sync'}
           </button>
         </div>

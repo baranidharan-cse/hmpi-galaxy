@@ -54,26 +54,41 @@ export function HMPICalculator({ onCalculate }: HMPICalculatorProps) {
     if(metals.length > 1) setMetals(metals.filter(m => m.id !== id));
   };
 
-  const handleCalculate = () => {
+  const handleCalculate = async () => {
     const validMetals = metals.filter(m => m.name && m.concentration > 0 && m.standard > 0);
     if (!validMetals.length || !locationName || !lat || !lng) {
         alert("Please completely formulate the hypothetical parameters.");
         return;
     }
 
-    const subIndices = validMetals.map(m => (m.concentration / m.standard) * 100);
-    const hmpi = subIndices.reduce((sum, si) => sum + si, 0) / validMetals.length;
+    try {
+        const payload: Record<string, number> = { Latitude: parseFloat(lat), Longitude: parseFloat(lng) };
+        validMetals.forEach(m => {
+            const symbolMatch = m.name.match(/\(([^)]+)\)/);
+            if(symbolMatch) payload[symbolMatch[1]] = m.concentration;
+        });
 
-    onCalculate({
-      hmpi,
-      metals: validMetals,
-      locationName,
-      lat: parseFloat(lat),
-      lng: parseFloat(lng)
-    });
+        const response = await fetch('https://hmpi-groundwater-monitoring-system-live.onrender.com/api/engine/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        
+        onCalculate({
+            hmpi: result.calculated_hmpi,
+            metals: validMetals,
+            locationName,
+            lat: parseFloat(lat),
+            lng: parseFloat(lng)
+        });
 
-    setLocationName('');
-    setLat(''); setLng('');
+        setLocationName('');
+        setLat(''); setLng('');
+    } catch(e) {
+        console.error("Calculation Engine Offline", e);
+    }
   };
 
   return (
