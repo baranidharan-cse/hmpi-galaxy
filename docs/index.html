@@ -1,14 +1,283 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>hmpi-web-app</title>
-    <script type="module" crossorigin src="./assets/index-DuXIUYkV.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-Bt1Gi8B-.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARENA GALAXY | Elite Intelligence</title>
+    <!-- Tailwind Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#05111b',
+                            card: '#0a1a27',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet GIS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-64 glass border-r border-white/5 flex flex-col fixed h-full z-50">
+        <div class="p-6 flex items-center gap-3">
+            <div class="w-10 h-10 bg-brand-emerald rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                <i data-lucide="brain-circuit"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">ARENA <span class="text-brand-emerald text-xs block -mt-1 font-semibold">GALAXY</span></h1>
+            </div>
+        </div>
+        
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="#" data-route="dashboard" class="flex items-center gap-3 px-4 py-3 bg-brand-emerald/10 text-brand-emerald rounded-xl transition-all border border-brand-emerald/20 hover:bg-brand-emerald/20 group">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="font-medium">Dashboard</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 ml-auto opacity-100 transition-opacity"></i>
+            </a>
+            <a href="#" data-route="analytics" class="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="line-chart" class="w-5 h-5"></i>
+                <span class="font-medium">AI Insights</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+            <a href="#" data-route="data" class="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="database" class="w-5 h-5"></i>
+                <span class="font-medium">Data Archive</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+            <a href="#" data-route="settings" class="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="font-medium">System Settings</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </a>
+        </nav>
+        
+        <div class="p-6 border-t border-white/5 mt-auto">
+            <div class="glass p-4 rounded-2xl flex items-center gap-3 border-emerald-500/20">
+                <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse-emerald"></div>
+                <span class="text-xs font-semibold text-white/70 uppercase tracking-widest">System Online</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content AREA -->
+    <main class="ml-64 flex-1 p-8">
+        
+        <!-- Global Header -->
+        <header class="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
+            <div>
+                <h2 class="text-3xl font-bold text-white tracking-tight">Environmental Intelligence</h2>
+                <p class="text-white/50 text-sm mt-1">Real-time HMPI heavy metal diagnostics & predictive AI.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="relative group">
+                    <input type="text" placeholder="Search coordinates..." class="bg-brand-card border border-white/10 rounded-full py-2 px-10 text-sm focus:outline-none focus:border-brand-emerald/50 transition-all w-64 text-white">
+                    <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-white/40"></i>
+                </div>
+                <div class="flex items-center gap-2">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff" alt="User" class="w-10 h-10 rounded-full border-2 border-brand-emerald/50 cursor-pointer">
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE 1: DASHBOARD (Active by default) -->
+        <section data-page="dashboard" class="active">
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="glass emerald-glow p-6 rounded-3xl relative overflow-hidden group">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-brand-emerald/10 blur-3xl rounded-full group-hover:bg-brand-emerald/20 transition-all"></div>
+                    <p class="text-white/40 text-xs font-bold uppercase tracking-widest mb-2 font-sans">Avg. HMPI Score</p>
+                    <div class="flex items-end gap-3">
+                        <h3 class="text-4xl font-bold text-white" id="kpi-avg-score">142.4</h3>
+                        <span class="text-brand-emerald text-sm font-semibold mb-1 flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-4 h-4"></i> Live
+                        </span>
+                    </div>
+                    <p class="text-white/40 text-[10px] mt-2 font-medium">Synced with WHO BIS-10500</p>
+                </div>
+                
+                <div class="glass rose-glow p-6 rounded-3xl relative overflow-hidden group">
+                    <p class="text-white/40 text-xs font-bold uppercase tracking-widest mb-2 font-sans">High-Risk Zones</p>
+                    <div class="flex items-end gap-3">
+                        <h3 class="text-4xl font-bold text-white" id="kpi-critical-zones">24</h3>
+                        <span class="text-brand-rose text-sm font-semibold mb-1 px-2 py-0.5 bg-brand-rose/10 rounded-lg">Critical</span>
+                    </div>
+                    <p class="text-white/40 text-[10px] mt-2 font-medium shrink-0">Priority Attention Required</p>
+                </div>
+
+                <div class="glass amber-glow p-6 rounded-3xl relative overflow-hidden group col-span-2">
+                    <p class="text-white/40 text-xs font-bold uppercase tracking-widest mb-2 font-sans">Top Contaminant Trend</p>
+                    <div class="flex items-center gap-6">
+                        <div>
+                            <h3 class="text-4xl font-bold text-white">Pb (Lead)</h3>
+                            <p class="text-brand-amber font-semibold text-sm">42% Contribution Index</p>
+                        </div>
+                        <div class="flex-1 h-12 bg-white/5 rounded-xl overflow-hidden flex items-end">
+                            <div class="w-full bg-gradient-to-t from-brand-amber/40 to-brand-amber h-3/4 rounded-t-sm"></div>
+                            <div class="w-full bg-gradient-to-t from-brand-amber/40 to-brand-amber h-1/2 mx-1 rounded-t-sm"></div>
+                            <div class="w-full bg-gradient-to-t from-brand-amber/40 to-brand-amber h-full rounded-t-sm"></div>
+                            <div class="w-full bg-gradient-to-t from-brand-amber/40 to-brand-amber h-2/3 mx-1 rounded-t-sm"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Middle: Map -->
+            <div class="grid grid-cols-1 gap-8 mb-8">
+                <div class="glass p-6 rounded-3xl border border-white/5 relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="map" class="text-brand-emerald"></i>
+                            <h3 class="text-lg font-bold text-white">Global GIS Visualization</h3>
+                        </div>
+                        <span class="text-[10px] bg-white/5 px-2 py-1 rounded text-white/40 border border-white/10 uppercase tracking-widest">CartoDB Dark Matter</span>
+                    </div>
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <!-- Dashboard Bottom: Telemetry Table -->
+            <div class="glass p-6 rounded-3xl overflow-hidden flex flex-col max-h-[400px]">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="file-text" class="text-brand-emerald"></i>
+                        <h3 class="text-lg font-bold text-white">Active Sensor Telemetry</h3>
+                    </div>
+                    <button class="text-white/40 hover:text-white transition-all">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-auto custom-scrollbar pr-2">
+                    <table class="w-full text-left text-sm">
+                        <thead class="sticky top-0 bg-brand-card/95 backdrop-blur z-10">
+                            <tr class="text-white/40 border-b border-white/5 uppercase text-[10px] tracking-widest font-bold">
+                                <th class="pb-3 px-2">Node ID</th>
+                                <th class="pb-3 px-2">Coordinates</th>
+                                <th class="pb-3 px-2 text-right">HMPI</th>
+                                <th class="pb-3 px-2 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 font-medium">
+                            <!-- JS populated -->
+                            <tr><td colspan="4" class="py-4 text-center text-white/40">Loading Telemetry...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 2: AI INSIGHTS -->
+        <section data-page="analytics">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- SHAP Matrix -->
+                <div class="glass emerald-glow p-6 rounded-3xl flex flex-col h-[500px]">
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="brain-circuit" class="text-brand-emerald"></i>
+                        <h3 class="text-lg font-bold text-white">SHAP AI Diagnostics</h3>
+                    </div>
+                    <p class="text-white/40 text-xs mb-8 leading-relaxed">Identifying the core drivers behind toxicity spikes via Game Theory feature importance.</p>
+                    
+                    <div id="diagnostics-chart" class="flex-1 w-full relative z-10"></div>
+                </div>
+
+                <!-- 12 Month Trend -->
+                <div class="glass border border-white/5 p-6 rounded-3xl h-[500px] flex flex-col">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="line-chart" class="text-brand-emerald"></i>
+                            <h3 class="text-lg font-bold text-white">12-Month Predictive Analytics</h3>
+                        </div>
+                    </div>
+                    <p class="text-white/40 text-xs mb-8 leading-relaxed">Forecasting future HMPI levels using Gradient Boosting Regressor ensembles.</p>
+                    <div id="trend-chart" class="flex-1 w-full relative z-10" style="min-height: 250px;"></div>
+                </div>
+            </div>
+            
+            <div class="mt-8 p-6 glass border border-brand-emerald/20 rounded-3xl flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-brand-emerald/10 flex items-center justify-center shrink-0">
+                    <i data-lucide="cpu" class="text-brand-emerald w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-1">Model Inference Status: <span class="text-brand-emerald">Optimal</span></h4>
+                    <p class="text-white/50 text-sm leading-relaxed">The Scikit-Learn ensemble model is successfully processing incoming node telemetry. Current inference latency is <span class="text-white">42ms</span>. Next retraining cycle scheduled for 03:00 UTC.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 3: DATA ARCHIVE -->
+        <section data-page="data">
+            <div class="glass p-12 rounded-3xl text-center border border-white/5 flex flex-col items-center justify-center h-[600px]">
+                <div class="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6">
+                    <i data-lucide="database" class="w-12 h-12 text-white/20"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Data Archive Module</h3>
+                <p class="text-white/50 max-w-md mx-auto mb-8">Access historical HMPI data, download CSV reports, and view automated compliance manifests.</p>
+                <button class="bg-brand-emerald text-brand-dark px-6 py-3 rounded-lg font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-colors flex items-center gap-2">
+                    <i data-lucide="download-cloud" class="w-5 h-5"></i>
+                    Export Full Dataset (CSV)
+                </button>
+            </div>
+        </section>
+
+        <!-- PAGE 4: SETTINGS -->
+        <section data-page="settings">
+            <div class="max-w-3xl glass p-8 rounded-3xl border border-white/5">
+                <h3 class="text-2xl font-bold text-white mb-8 border-b border-white/5 pb-4">System Settings</h3>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-white/50 text-xs font-bold uppercase tracking-widest mb-2">API Endpoint URL</label>
+                        <input type="text" value="https://hmpi-galaxy.onrender.com/api" class="w-full bg-brand-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-emerald/50" readonly>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                        <div>
+                            <h4 class="text-white font-medium">Real-time Telemetry Sync</h4>
+                            <p class="text-white/40 text-sm">Automatically fetch new data every 30 seconds.</p>
+                        </div>
+                        <div class="w-12 h-6 bg-brand-emerald rounded-full relative cursor-pointer">
+                            <div class="w-4 h-4 bg-brand-dark rounded-full absolute top-1 right-1 shadow-sm"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                        <div>
+                            <h4 class="text-white font-medium">Strict BIS-10500 Mode</h4>
+                            <p class="text-white/40 text-sm">Enforce Indian standard warning limits instead of WHO.</p>
+                        </div>
+                        <div class="w-12 h-6 bg-white/10 rounded-full relative cursor-pointer">
+                            <div class="w-4 h-4 bg-white/40 rounded-full absolute top-1 left-1 shadow-sm"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Script -->
+    <script src="js/app.js"></script>
+</body>
 </html>
