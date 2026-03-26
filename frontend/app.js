@@ -1,7 +1,5 @@
-/* app.js */
-// 🚀 CLOUD DEPLOYMENT STEP: 
-// Replace 'http://localhost:8000/api' with your deployed backend URL (e.g., 'https://hmpi-backend.onrender.com/api')
-const API_BASE = 'http://localhost:8000/api';
+// 🚀 CLOUD DEPLOYMENT STEP: Fully connected to live Render backend!
+const API_BASE = 'https://hmpi-groundwater-monitoring-system-live.onrender.com/api';
 
 const map = L.map('map').setView([22.0, 79.0], 5);
 
