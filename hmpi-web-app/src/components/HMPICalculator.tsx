@@ -68,7 +68,7 @@ export function HMPICalculator({ onCalculate }: HMPICalculatorProps) {
             if(symbolMatch) payload[symbolMatch[1]] = m.concentration;
         });
 
-        const response = await fetch('https://hmpi-groundwater-monitoring-system-live.onrender.com/api/engine/calculate', {
+        const response = await fetch('https://hmpi-galaxy.onrender.com/api/engine/calculate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

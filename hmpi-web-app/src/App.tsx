@@ -5,7 +5,7 @@ import { LocationDetails } from './components/LocationDetails';
 import { Statistics } from './components/Statistics';
 import { Droplets, RefreshCw } from 'lucide-react';
 
-const API_BASE = 'https://hmpi-groundwater-monitoring-system-live.onrender.com/api';
+const API_BASE = 'https://hmpi-galaxy.onrender.com/api';
 
 interface Location {
   id: string;
