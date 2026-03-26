@@ -28,12 +28,14 @@ def calculate_hmpi(row):
     return numerator / denominator
 
 def categorize_water(hmpi_score):
-    if hmpi_score < 100:
-        return 'Good'
-    elif hmpi_score <= 150:
-        return 'Poor'
+    if hmpi_score < 50:
+        return 'Low Pollution'
+    elif hmpi_score < 100:
+        return 'Moderate'
+    elif hmpi_score < 200:
+        return 'High Pollution'
     else:
-        return 'Unsafe'
+        return 'Critical'
 
 def process_groundwater_data(filepath):
     df = pd.read_csv(filepath)

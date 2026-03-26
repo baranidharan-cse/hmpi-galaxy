@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMPI Galaxy | Real-Time Groundwater Monitoring</title>
+    <title>HMPI Galaxy | Professional Dashboard</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="app-container">
@@ -16,7 +18,7 @@
         <aside class="sidebar">
             <div class="logo">
                 <h1>HMPI <span>Galaxy</span></h1>
-                <p>AI-Powered Groundwater Monitoring</p>
+                <p>Groundwater Monitoring Locations</p>
             </div>
             
             <div class="dashboard-cards">
@@ -28,13 +30,13 @@
                 </div>
 
                 <div class="card ai-prediction-card">
-                    <h3>Latest AI Prediction</h3>
+                    <h3>AI Trend Prediction</h3>
                     <div class="prediction-value" id="ai-pred-value">--</div>
-                    <p class="prediction-label">Forecasted HMPI (6 mo.)</p>
+                    <p class="prediction-label">Forecasted HMPI</p>
                 </div>
 
-                <div class="card summary-card">
-                    <h3>Current Region Quality</h3>
+                <div class="card summary-card" id="region-card">
+                    <h3>Region Quality</h3>
                     <div class="quality-badge" id="quality-badge">Awaiting Data</div>
                     <div class="stat-row">
                         <span>Current HMPI:</span>
@@ -44,14 +46,30 @@
             </div>
 
             <div class="controls">
-                <button id="refresh-btn" class="btn primary-btn">Fetch Live WRIS Data</button>
-                <button id="load-history-btn" class="btn secondary-btn">Load Historical Map</button>
+                <button id="refresh-btn" class="btn primary-btn"><i data-lucide="refresh-cw"></i> Fetch Live Data</button>
+                <button id="load-history-btn" class="btn secondary-btn"><i data-lucide="map"></i> Load Historical</button>
+            </div>
+            
+            <div class="location-list-header">
+                <h3><i data-lucide="map-pin"></i> Monitored Locations</h3>
+            </div>
+            <div class="location-cards-container" id="location-cards">
+                <!-- Location buttons injected here rapidly -->
             </div>
         </aside>
 
         <!-- Main Map Area -->
         <main class="map-area">
             <div id="map"></div>
+            
+            <!-- Map Legend Overlays -->
+            <div class="map-legend">
+                <div class="legend-item"><div class="dot bg-green"></div><span>Low (&lt;50)</span></div>
+                <div class="legend-item"><div class="dot bg-yellow"></div><span>Moderate (50-100)</span></div>
+                <div class="legend-item"><div class="dot bg-orange"></div><span>High (100-200)</span></div>
+                <div class="legend-item"><div class="dot bg-red"></div><span>Critical (&gt;200)</span></div>
+            </div>
+
             <!-- Overlay for loading -->
             <div id="loading-overlay" class="hidden">
                 <div class="spinner"></div>
@@ -60,8 +78,11 @@
         </main>
     </div>
 
-    <!-- Leaflet JS -->
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="app.js"></script>
+    <script>
+        lucide.createIcons(); // Initialize the sleek Lucide icons instantly
+    </script>
 </body>
 </html>
