@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARENA GALAXY | Environmental Intelligence</title>
+    <!-- Tailwind Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet GIS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#05111b',
+                            card: '#0a1a27',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #05111b; color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(10, 26, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .emerald-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .amber-glow { box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .rose-glow { box-shadow: 0 0 20px rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.3); }
+        
+        #map { height: 400px; border-radius: 12px; filter: grayscale(1) invert(0.9) hue-rotate(180deg) brightness(0.8); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        
+        @keyframes pulse-emerald {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .animate-pulse-emerald { animation: pulse-emerald 2s infinite; }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-64 glass border-r border-white/5 flex flex-col fixed h-full z-50">
+        <div class="p-6 flex items-center gap-3">
+            <div class="w-10 h-10 bg-brand-emerald rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                <i data-lucide="brain-circuit"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">ARENA <span class="text-brand-emerald text-xs block -mt-1 font-semibold">GALAXY</span></h1>
+            </div>
+        </div>
+        
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-brand-emerald/10 text-brand-emerald rounded-xl transition-all border border-brand-emerald/20 hover:bg-brand-emerald/20 group">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="font-medium">Dashboard</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100"></i>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="database" class="w-5 h-5"></i>
+                <span class="font-medium">Data Archive</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                <span class="font-medium">GIS Network</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i data-lucide="activity" class="w-5 h-5"></i>
+                <span class="font-medium">Live Telemetry</span>
+            </a>
+        </nav>
+        
+        <div class="p-6 border-t border-white/5 mt-auto">
+            <div class="glass p-4 rounded-2xl flex items-center gap-3 border-emerald-500/20">
+                <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse"></div>
+                <span class="text-xs font-semibold text-white/70 uppercase tracking-widest">System Online</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 flex-1 p-8">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-3xl font-bold text-white tracking-tight">Environmental Intelligence</h2>
+                <p class="text-white/50 text-sm mt-1">Real-time HMPI heavy metal diagnostics & predictive AI.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="relative group">
+                    <input type="text" placeholder="Search coordinates..." class="bg-brand-card border border-white/10 rounded-full py-2 px-10 text-sm focus:outline-none focus:border-brand-emerald/50 transition-all w-64">
+                    <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-white/40"></i>
+                </div>
+                <button class="glass p-2 rounded-full hover:bg-white/5 transition-all text-white/60">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass emerald-glow p-6 rounded-3xl relative overflow-hidden group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-brand-emerald/10 blur-3xl rounded-full group-hover:bg-brand-emerald/20 transition-all"></div>
+                <p class="text-white/40 text-xs font-bold uppercase tracking-widest mb-2 font-sans">Avg. HMPI Score</p>
+                <div class="flex items-end gap-3">
+                    <h3 class="text-4xl font-bold text-white">142.4</h3>
+                    <span class="text-brand-emerald text-sm font-semibold mb-1 flex items-center gap-1">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i> +12%
+                    </span>
+                </div>
+                <p class="text-white/40 text-[10px] mt-2 font-medium">Synced with WHO BIS-10500</p>
+            </div>
+            
+            <div class="glass rose-glow p-6 rounded-3xl relative overflow-hidden group">
+                <p class="text-white/40 text-xs font-bold uppercase tracking-widest mb-2 font-sans">High-Risk Zones</p>
+                <div class="flex items-end gap-3">
+                    <h3 class="text-4xl font-bold text-white">24</h3>
+                    <span class="text-brand-rose text-sm font-semibold mb-1 px-2 py-0.5 bg-brand-rose/10 rounded-lg">Critical</span>
+                </div>
+                <p class="text-white/40 text-[10px] mt-2 font-medium shrink-0">Priority Attention Required</p>
+            </div>
+
+            <div class="glass amber-glow p-6 rounded-3xl relative overflow-hidden group col-span-2">
+                <p class="text-white/40 text-xs font-bold uppercase tracking-widest mb-2 font-sans">Top Contaminant Trend</p>
+                <div class="flex items-center gap-6">
+                    <div>
+                        <h3 class="text-4xl font-bold text-white">Pb (Lead)</h3>
+                        <p class="text-brand-amber font-semibold text-sm">42% Contribution Index</p>
+                    </div>
+                    <div class="flex-1 h-12 bg-white/5 rounded-xl overflow-hidden flex items-end">
+                        <div class="w-full bg-gradient-to-t from-brand-amber/40 to-brand-amber h-3/4 rounded-t-sm"></div>
+                        <div class="w-full bg-gradient-to-t from-brand-amber/40 to-brand-amber h-1/2 mx-1 rounded-t-sm"></div>
+                        <div class="w-full bg-gradient-to-t from-brand-amber/40 to-brand-amber h-full rounded-t-sm"></div>
+                        <div class="w-full bg-gradient-to-t from-brand-amber/40 to-brand-amber h-2/3 mx-1 rounded-t-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Section: Map & XAI -->
+        <div class="grid grid-cols-3 gap-8 mb-8">
+            <div class="col-span-2 space-y-6">
+                <div class="glass p-6 rounded-3xl border border-white/5 relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="map" class="text-brand-emerald"></i>
+                            <h3 class="text-lg font-bold">Global GIS Visualization</h3>
+                        </div>
+                        <span class="text-[10px] bg-white/5 px-2 py-1 rounded text-white/40 border border-white/10 uppercase tracking-widest">CartoDB Dark Matter</span>
+                    </div>
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <div class="col-span-1 glass p-6 rounded-3xl flex flex-col">
+                <div class="flex items-center gap-3 mb-6">
+                    <i data-lucide="brain-circuit" class="text-brand-emerald"></i>
+                    <h3 class="text-lg font-bold">SHAP AI Diagnostics</h3>
+                </div>
+                <p class="text-white/40 text-xs mb-8 leading-relaxed">Identifying the core drivers behind toxicity spikes via Game Theory feature importance.</p>
+                
+                <div id="diagnostics-chart" class="flex-1"></div>
+                
+                <div class="mt-4 p-4 bg-brand-emerald/5 border border-brand-emerald/20 rounded-2xl">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i data-lucide="check-circle" class="w-3 h-3 text-brand-emerald"></i>
+                        <span class="text-xs font-bold text-brand-emerald uppercase tracking-widest">Model Conclusion</span>
+                    </div>
+                    <p class="text-[11px] text-white/70 italic leading-snug">Spike in node #1042 driven primarily by Lead concentration increase (+24%).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section: Trends & Data -->
+        <div class="grid grid-cols-4 gap-8">
+            <div class="col-span-2 glass p-6 rounded-3xl">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="trending-up" class="text-brand-emerald"></i>
+                        <h3 class="text-lg font-bold">12-Month Predictive Analytics</h3>
+                    </div>
+                    <button class="text-brand-emerald text-xs font-bold hover:underline">Model Hyperparameters</button>
+                </div>
+                <div id="trend-chart" style="min-height: 250px;"></div>
+            </div>
+
+            <div class="col-span-2 glass p-6 rounded-3xl overflow-hidden flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="file-text" class="text-brand-emerald"></i>
+                        <h3 class="text-lg font-bold">Active Sensor Telemetry</h3>
+                    </div>
+                    <button class="text-white/40 hover:text-white transition-all">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-auto custom-scrollbar">
+                    <table class="w-full text-left text-sm">
+                        <thead class="sticky top-0 bg-brand-card/95 backdrop-blur z-10">
+                            <tr class="text-white/40 border-b border-white/5 uppercase text-[10px] tracking-widest font-bold">
+                                <th class="pb-3 px-2">Node ID</th>
+                                <th class="pb-3 px-2">Coordinates</th>
+                                <th class="pb-3 px-2 text-right">HMPI</th>
+                                <th class="pb-3 px-2 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 font-medium">
+                            <tr class="hover:bg-white/5 transition-colors group">
+                                <td class="py-4 px-2 text-brand-emerald">NODE-1042</td>
+                                <td class="py-4 px-2 text-white/60">23.74, 84.54</td>
+                                <td class="py-4 px-2 text-right font-bold text-brand-rose">314.5</td>
+                                <td class="py-4 px-2 text-center">
+                                    <span class="bg-brand-rose/10 text-brand-rose px-2 py-1 rounded-lg text-[10px] animate-pulse-emerald">Critical</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-white/5 transition-colors group">
+                                <td class="py-4 px-2 text-brand-emerald">NODE-1043</td>
+                                <td class="py-4 px-2 text-white/60">29.50, 81.62</td>
+                                <td class="py-4 px-2 text-right font-bold text-brand-amber">181.9</td>
+                                <td class="py-4 px-2 text-center">
+                                    <span class="bg-brand-amber/10 text-brand-amber px-2 py-1 rounded-lg text-[10px]">Moderate</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-white/5 transition-colors group text-white/40">
+                                <td class="py-4 px-2">NODE-1044</td>
+                                <td class="py-4 px-2">27.31, 84.09</td>
+                                <td class="py-4 px-2 text-right font-bold text-brand-emerald">82.4</td>
+                                <td class="py-4 px-2 text-center">
+                                    <span class="bg-brand-emerald/10 text-brand-emerald px-2 py-1 rounded-lg text-[10px]">Optimal</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- Configuration ---
+        const API_BASE = 'https://hmpi-galaxy.onrender.com/api';
+        
+        // --- Init Icons ---
+        lucide.createIcons();
+
+        // --- Init Map ---
+        const map = L.map('map', { zoomControl: false }).setView([22.9734, 78.6569], 5);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; CartoDB'
+        }).addTo(map);
+
+        // --- Charts Initialization ---
+        let xaiChart, trendChart;
+
+        function initCharts(xaiData = [44, 55, 41, 64, 22], trendData = [31, 40, 28, 51, 42, 109, 100, 121, 142, 148, 153, 160]) {
+            const xaiOptions = {
+                series: [{ name: 'Feature Impact', data: xaiData }],
+                chart: { type: 'bar', height: 250, toolbar: { show: false }, background: 'transparent' },
+                plotOptions: { bar: { borderRadius: 8, horizontal: true, colors: { ranges: [{ from: 0, to: 100, color: '#10b981' }] } } },
+                dataLabels: { enabled: false },
+                grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 4 },
+                xaxis: { categories: ['Pb', 'As', 'Cd', 'Cr', 'Hg'], labels: { style: { colors: '#94a3b8' } } },
+                yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '10px' } } },
+                theme: { mode: 'dark' }
+            };
+            xaiChart = new ApexCharts(document.querySelector("#diagnostics-chart"), xaiOptions);
+            xaiChart.render();
+
+            const trendOptions = {
+                series: [{ name: 'Predicted HMPI', data: trendData }],
+                chart: { type: 'area', height: 250, toolbar: { show: false }, background: 'transparent', zoom: { enabled: false } },
+                colors: ['#10b981'],
+                fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [20, 100] } },
+                stroke: { curve: 'smooth', width: 2 },
+                grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 4 },
+                xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], labels: { style: { colors: '#94a3b8' } } },
+                yaxis: { labels: { style: { colors: '#94a3b8' } } },
+                theme: { mode: 'dark' }
+            };
+            trendChart = new ApexCharts(document.querySelector("#trend-chart"), trendOptions);
+            trendChart.render();
+        }
+
+        // --- Data Interaction ---
+        async function fetchTelemetry() {
+            try {
+                const res = await fetch(`${API_BASE}/telemetry`);
+                const data = await res.json();
+                updateTable(data.nodes);
+                updateMap(data.nodes);
+            } catch (err) {
+                console.warn("Using fallback mock data for telemetry.");
+            }
+        }
+
+        function updateTable(nodes) {
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = nodes.map(node => `
+                <tr class="hover:bg-white/5 transition-colors group">
+                    <td class="py-4 px-2 text-brand-emerald">${node.id}</td>
+                    <td class="py-4 px-2 text-white/60">${node.lat.toFixed(2)}, ${node.lng.toFixed(2)}</td>
+                    <td class="py-4 px-2 text-right font-bold ${node.hmpi > 300 ? 'text-brand-rose' : (node.hmpi > 100 ? 'text-brand-amber' : 'text-brand-emerald')}">${node.hmpi}</td>
+                    <td class="py-4 px-2 text-center">
+                        <span class="bg-${node.hmpi > 300 ? 'brand-rose' : (node.hmpi > 100 ? 'brand-amber' : 'brand-emerald')}/10 text-${node.hmpi > 300 ? 'brand-rose' : (node.hmpi > 100 ? 'brand-amber' : 'brand-emerald')} px-2 py-1 rounded-lg text-[10px] ${node.hmpi > 300 ? 'animate-pulse' : ''}">
+                            ${node.hmpi > 300 ? 'Critical' : (node.hmpi > 100 ? 'Moderate' : 'Optimal')}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateMap(nodes) {
+            nodes.forEach(node => {
+                const color = node.hmpi > 300 ? '#f43f5e' : (node.hmpi > 100 ? '#f59e0b' : '#10b981');
+                const glow = node.hmpi > 300 ? 'rgba(244,63,94,0.5)' : (node.hmpi > 100 ? 'rgba(245,158,11,0.5)' : 'rgba(16,185,129,0.5)');
+                
+                const icon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="background-color:${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px ${glow};"></div>`,
+                    iconSize: [12, 12]
+                });
+                
+                L.marker([node.lat, node.lng], { icon }).addTo(map)
+                    .bindPopup(`<div class="p-2 font-sans"><b>${node.id}</b><br>HMPI: ${node.hmpi}</div>`);
+            });
+        }
+
+        // --- Start up ---
+        initCharts();
+        fetchTelemetry();
+        
+        // Final layout polish
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 500);
+
+        // Auto-refresh every 30s
+        setInterval(fetchTelemetry, 30000);
+    </script>
+</body>
+</html>
