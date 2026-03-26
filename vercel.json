@@ -1,0 +1,4 @@
+{
+  "buildCommand": "cd hmpi-web-app && npm install && npm run build",
+  "outputDirectory": "hmpi-web-app/dist"
+}
