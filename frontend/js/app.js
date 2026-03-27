@@ -229,9 +229,9 @@ function updateMap(nodes) {
                     if (!res.ok) throw new Error("Rate limit");
                     const data = await res.json();
                     if (data && data.address) {
-                        const city = data.address.city || data.address.state_district || data.address.county || data.address.town || "Unknown Region";
+                        const localName = data.address.city || data.address.town || data.address.village || data.address.hamlet || data.address.suburb || data.address.neighbourhood || data.address.state_district || data.address.county || data.name || "Regional Sector";
                         const state = data.address.state || "India";
-                        locEl.innerHTML = `<span class="flex items-center gap-1 text-white"><i data-lucide="map-pin" class="w-3 h-3 text-brand-emerald"></i> ${city}, ${state}</span>`;
+                        locEl.innerHTML = `<span class="flex items-center gap-1 text-white"><i data-lucide="map-pin" class="w-3 h-3 text-brand-emerald"></i> ${localName}, ${state}</span>`;
                     } else {
                         locEl.innerHTML = `Lat: ${node.Latitude.toFixed(2)}, Lng: ${node.Longitude.toFixed(2)}`;
                     }
