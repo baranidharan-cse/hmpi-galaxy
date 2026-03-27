@@ -6,10 +6,7 @@ from hmpi_engine import calculate_hmpi, categorize_water
 
 def fetch_live_wris_telemetry():
     """
-    Connects to an external telemetry API (simulating the secure India WRIS geospatial feed).
-    Since India WRIS heavily encrypts live programmatic data without NIC clearance,
-    this interface proxies a network ping and generates mathematically bound telemetry nodes
-    synchronized to central geographic blocks (e.g. Ganges Basin, Deccan Plateau).
+    Simulates a secure India WRIS geospatial feed with 50 distributed nodes across India.
     """
     try:
         response = requests.get("https://data.gov.in/", timeout=5)
@@ -18,25 +15,37 @@ def fetch_live_wris_telemetry():
         network_status = "OFFLINE"
 
     live_nodes = []
-    basins = [
-        {"name": "Ganges Basin Sync", "lat": 25.3176, "lng": 82.9739},
-        {"name": "Yamuna River Telemetry", "lat": 28.6139, "lng": 77.2090},
-        {"name": "Deccan Plateau Probe", "lat": 18.5204, "lng": 73.8567},
-        {"name": "Kaveri Delta Node", "lat": 10.7905, "lng": 78.7047}
-    ]
     
-    for basin in basins:
+    # Generate 50 nodes across Indian Subcontinent bounded roughly: Lat(8.0 - 33.0), Lng(68.0 - 95.0)
+    for i in range(50):
+        # Weighted random distribution towards actual industrial/river basins
+        if random.random() < 0.4:
+            # North/East India (Ganges belt - higher pollution)
+            lat = random.uniform(24.0, 28.0)
+            lng = random.uniform(77.0, 88.0)
+            hmpi_amplifier = 1.3
+        elif random.random() < 0.7:
+            # South India (Kaveri/Godavari - moderate)
+            lat = random.uniform(10.0, 18.0)
+            lng = random.uniform(75.0, 80.0)
+            hmpi_amplifier = 0.8
+        else:
+            # West/Central (Narmada/Tapi - mixed)
+            lat = random.uniform(19.0, 23.0)
+            lng = random.uniform(70.0, 75.0)
+            hmpi_amplifier = 1.0
+
         node_data = {
             "Sample_ID": f"WRIS-LIVE-{str(time.time()).replace('.','')[-4:]}-{random.randint(10,99)}",
-            "Latitude": basin["lat"] + random.uniform(-0.1, 0.1),
-            "Longitude": basin["lng"] + random.uniform(-0.1, 0.1),
-            "As": max(0.001, random.normalvariate(0.015, 0.01)),
-            "Pb": max(0.001, random.normalvariate(0.02, 0.015)),
-            "Cd": max(0.0005, random.normalvariate(0.004, 0.002)),
-            "Cr": max(0.01, random.normalvariate(0.04, 0.02)),
-            "Hg": max(0.0001, random.normalvariate(0.0015, 0.0005)),
-            "U": max(0.005, random.normalvariate(0.025, 0.01)),
-            "Fe": max(0.1, random.normalvariate(0.8, 0.3)),
+            "Latitude": lat,
+            "Longitude": lng,
+            "As": max(0.001, random.normalvariate(0.015, 0.01) * hmpi_amplifier),
+            "Pb": max(0.001, random.normalvariate(0.02, 0.015) * hmpi_amplifier),
+            "Cd": max(0.0005, random.normalvariate(0.004, 0.002) * hmpi_amplifier),
+            "Cr": max(0.01, random.normalvariate(0.04, 0.02) * hmpi_amplifier),
+            "Hg": max(0.0001, random.normalvariate(0.0015, 0.0005) * hmpi_amplifier),
+            "U": max(0.005, random.normalvariate(0.025, 0.01) * hmpi_amplifier),
+            "Fe": max(0.1, random.normalvariate(0.8, 0.3) * hmpi_amplifier),
             "Network_Status": network_status
         }
         

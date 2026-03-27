@@ -146,23 +146,44 @@ function updateTable(nodes) {
     `).join('');
 }
 
+// --- Heatmap Gradient Logic ---
+function getNaturalColor(hmpi) {
+    if (hmpi < 50) return { core: '#0ea5e9', glow: 'rgba(14, 165, 233, 0.6)' };     // Sky Blue (Very Clean)
+    if (hmpi < 100) return { core: '#10b981', glow: 'rgba(16, 185, 129, 0.6)' };    // Emerald (Clean)
+    if (hmpi < 150) return { core: '#eab308', glow: 'rgba(234, 179, 8, 0.6)' };     // Yellow (Moderate Warning)
+    if (hmpi < 200) return { core: '#f97316', glow: 'rgba(249, 115, 22, 0.6)' };    // Orange (High Pollution)
+    if (hmpi < 300) return { core: '#f43f5e', glow: 'rgba(244, 63, 94, 0.6)' };     // Rose/Red (Critical)
+    return { core: '#8b5cf6', glow: 'rgba(139, 92, 246, 0.8)' };                    // Purple/Violet (Extreme Hazard)
+}
+
 function updateMap(nodes) {
     if(!map) return;
     
+    // Clear existing layers if necessary
+    map.eachLayer((layer) => {
+        if (layer.options && layer.options.icon && layer.options.icon.options.className === 'custom-marker') {
+            map.removeLayer(layer);
+        }
+    });
+
     nodes.forEach(node => {
-        const color = node.HMPI > 300 ? '#f43f5e' : (node.HMPI > 100 ? '#f59e0b' : '#10b981');
-        const glow = node.HMPI > 300 ? 'rgba(244,63,94,0.5)' : (node.HMPI > 100 ? 'rgba(245,158,11,0.5)' : 'rgba(16,185,129,0.5)');
+        const theme = getNaturalColor(node.HMPI);
         
         const icon = L.divIcon({
             className: 'custom-marker',
-            html: `<div style="background-color:${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 15px ${glow};"></div>`,
+            html: `
+                <div style="position: relative; width: 14px; height: 14px;">
+                    <div style="absolute; inset: 0; background-color: ${theme.core}; border-radius: 50%; opacity: 0.3; transform: scale(3); filter: blur(4px);"></div>
+                    <div style="position: absolute; inset: 0; background-color: ${theme.core}; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 0 20px ${theme.glow}, inset 0 0 5px rgba(255,255,255,0.5);"></div>
+                </div>
+            `,
             iconSize: [14, 14]
         });
         
         const safeNode = JSON.stringify(node).replace(/"/g, '&quot;');
         const popupHtml = `
             <div class="px-2 py-1 font-sans bg-brand-dark text-white rounded w-64">
-                <h4 class="font-bold text-brand-emerald text-sm mb-1">${node.Sample_ID}</h4>
+                <h4 class="font-bold text-sm mb-1" style="color: ${theme.core}">${node.Sample_ID}</h4>
                 <p class="text-xs text-white/60 mb-2">Location: ${node.Latitude.toFixed(2)}, ${node.Longitude.toFixed(2)}</p>
                 <div class="grid grid-cols-2 gap-2 text-[10px] bg-white/5 p-2 rounded mb-3">
                     <div><span class="text-white/40">Pb:</span> ${node.Pb.toFixed(3)}</div>
@@ -172,12 +193,11 @@ function updateMap(nodes) {
                 </div>
                 <div class="flex items-center justify-between mb-3 border-t border-white/10 pt-2">
                     <span class="text-xs font-bold text-white/50">Current HMPI:</span>
-                    <span class="font-bold \${node.HMPI > 300 ? 'text-brand-rose' : 'text-brand-emerald'}">${node.HMPI.toFixed(1)}</span>
+                    <span class="font-bold" style="color: ${theme.core}">${node.HMPI.toFixed(1)}</span>
                 </div>
-                <button onclick="window.runAIInference('${safeNode}')" class="w-full bg-brand-emerald text-brand-dark font-bold text-xs py-2 rounded shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2">
+                <button onclick="window.runAIInference('${safeNode}')" class="w-full text-brand-dark font-bold text-xs py-2 rounded shadow-lg transition-colors flex items-center justify-center gap-2 hover:opacity-90" style="background-color: ${theme.core}">
                     <i data-lucide="cpu" class="w-3 h-3"></i> Run AI X-Ray Inference
                 </button>
-                <!-- Container to hold lucide icon after injection -->
                 <script>setTimeout(() => lucide.createIcons(), 50);</script>
             </div>
         `;
