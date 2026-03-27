@@ -90,7 +90,7 @@ def generate_shap_matrix(payload: MetalPayload):
     pred_df = pd.DataFrame([features])
     
     # Generate authentic mathematical SHAP values for the specified node
-    explainer = shap.Explainer(model, pred_df)
+    explainer = shap.Explainer(model)
     shap_values = explainer(pred_df)
     
     # Extract the isolated 7 heavy metal impacts from the matrix
