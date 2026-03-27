@@ -82,12 +82,13 @@ function initCharts(xaiData = [44, 55, 41, 64, 22], trendData = [31, 40, 28, 51,
     const xaiOptions = {
         series: [{ name: 'Feature Impact', data: xaiData }],
         chart: { type: 'bar', height: 250, toolbar: { show: false }, background: 'transparent' },
-        plotOptions: { bar: { borderRadius: 8, horizontal: true, colors: { ranges: [{ from: 0, to: 100, color: '#10b981' }] } } },
-        dataLabels: { enabled: false },
+        plotOptions: { bar: { borderRadius: 6, horizontal: true, distributed: true, dataLabels: { position: 'bottom' } } },
+        colors: ['#3b82f6', '#10b981', '#f59e0b', '#f97316', '#f43f5e', '#a855f7', '#06b6d4'],
+        dataLabels: { enabled: true, textAnchor: 'start', style: { colors: ['#fff'] }, formatter: function (val, opt) { return opt.w.globals.labels[opt.dataPointIndex] + ": " + val + "%" }, offsetX: 0 },
         grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 4 },
-        xaxis: { categories: ['Pb', 'As', 'Cd', 'Cr', 'Hg'], labels: { style: { colors: '#94a3b8' } } },
-        yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '10px' } } },
-        theme: { mode: 'dark' }
+        xaxis: { categories: ['Pb', 'As', 'Cd', 'Cr', 'Hg', 'U', 'Fe'], labels: { style: { colors: '#94a3b8' } }, max: 100 },
+        yaxis: { labels: { show: false } },
+        tooltip: { theme: 'dark', y: { title: { formatter: function () { return '' } } } }
     };
     xaiChart = new ApexCharts(document.querySelector("#diagnostics-chart"), xaiOptions);
     xaiChart.render();
@@ -237,13 +238,29 @@ window.runAIInference = async function(nodeDataStr) {
             Latitude: node.Latitude, Longitude: node.Longitude
         };
 
-        const res = await fetch(`${API_BASE}/ai/predict`, {
+        const resPredict = fetch(`${API_BASE}/ai/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        // Parallel XAI Explainability Request
+        const resExplain = fetch(`${API_BASE}/ai/explain`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
         
-        const prediction = await res.json();
+        const [predictResponse, explainResponse] = await Promise.all([resPredict, resExplain]);
+        const prediction = await predictResponse.json();
+        
+        let shapMatrix = [0, 0, 0, 0, 0, 0, 0];
+        if (explainResponse.ok) {
+            const explanation = await explainResponse.json();
+            if (explanation.shap_normalized) {
+                shapMatrix = explanation.shap_normalized;
+            }
+        }
         
         if (btn) {
             btn.innerHTML = `<span class="text-brand-dark">Prediction: ${prediction.predicted_hmpi.toFixed(1)}</span>`;
@@ -261,16 +278,7 @@ window.runAIInference = async function(nodeDataStr) {
             return Math.max(0, parseFloat((base + ((target - base) * progress) + noise).toFixed(1)));
         });
 
-        // SHAP matrix features isolated from the current node's metal concentrations
-        const shapMatrix = [
-            parseFloat((node.Pb / 0.01 * 10).toFixed(1)), 
-            parseFloat((node.As / 0.01 * 10).toFixed(1)), 
-            parseFloat((node.Cd / 0.003 * 10).toFixed(1)), 
-            parseFloat((node.Cr / 0.05 * 10).toFixed(1)), 
-            parseFloat((node.Hg / 0.001 * 10).toFixed(1))
-        ];
-
-        // Animate ApexCharts instantly
+        // Animate ApexCharts instantly automatically integrating the authentic 7-metal XAI weights
         if (trendChart) trendChart.updateSeries([{ name: 'Predicted HMPI', data: trendCurve }]);
         if (xaiChart) xaiChart.updateSeries([{ name: 'Feature Impact', data: shapMatrix }]);
 
