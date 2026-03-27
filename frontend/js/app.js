@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMap();
     initCharts();
     fetchTelemetry();
+    initManualCalculator();
     
     // Final layout polish for ApexCharts
     setTimeout(() => {
@@ -173,7 +174,7 @@ function updateMap(nodes) {
             className: 'custom-marker',
             html: `
                 <div style="position: relative; width: 14px; height: 14px;">
-                    <div style="absolute; inset: 0; background-color: ${theme.core}; border-radius: 50%; opacity: 0.3; transform: scale(3); filter: blur(4px);"></div>
+                    <div style="position: absolute; inset: 0; background-color: ${theme.core}; border-radius: 50%; opacity: 0.3; transform: scale(3); filter: blur(4px);"></div>
                     <div style="position: absolute; inset: 0; background-color: ${theme.core}; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 0 20px ${theme.glow}, inset 0 0 5px rgba(255,255,255,0.5);"></div>
                 </div>
             `,
@@ -272,3 +273,66 @@ window.runAIInference = async function(nodeDataStr) {
         alert("Failed to reach the AI Model endpoints.");
     }
 };
+
+// --- Manual HMPI Calculator Logic ---
+function initManualCalculator() {
+    const form = document.getElementById('manual-hmpi-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const panel = document.getElementById('manual-results-panel');
+        
+        // Show loading state
+        panel.innerHTML = `
+            <div class="absolute inset-0 bg-gradient-to-b from-brand-emerald/10 to-transparent pointer-events-none"></div>
+            <i data-lucide="loader-2" class="w-16 h-16 text-brand-emerald mb-6 animate-spin"></i>
+            <h4 class="text-white font-bold mb-2">Executing Engine Calculus...</h4>
+            <p class="text-white/50 text-xs">Querying Python Backend using BIS IS:10500 Limits</p>
+        `;
+        lucide.createIcons();
+
+        const payload = {
+            Pb: parseFloat(document.getElementById('input-pb').value) || 0,
+            As: parseFloat(document.getElementById('input-as').value) || 0,
+            Cd: parseFloat(document.getElementById('input-cd').value) || 0,
+            Cr: parseFloat(document.getElementById('input-cr').value) || 0,
+            Hg: parseFloat(document.getElementById('input-hg').value) || 0,
+            U: parseFloat(document.getElementById('input-u').value) || 0,
+            Fe: parseFloat(document.getElementById('input-fe').value) || 0,
+            Latitude: 0,
+            Longitude: 0
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/engine/calculate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            
+            // Render Result
+            const hmpi = result.calculated_hmpi;
+            const theme = getNaturalColor(hmpi);
+            
+            panel.innerHTML = `
+                <div class="absolute inset-0 bg-gradient-to-b to-transparent pointer-events-none" style="--tw-gradient-from: ${theme.core}20;"></div>
+                <div class="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl relative" style="background-color: ${theme.core}20; border: 2px solid ${theme.core}">
+                    <div class="absolute inset-0 rounded-full animate-pulse opacity-50 filter blur-xl" style="background-color: ${theme.core}"></div>
+                    <span class="text-3xl font-extrabold relative z-10" style="color: ${theme.core}">${hmpi.toFixed(1)}</span>
+                </div>
+                <h4 class="text-white text-2xl font-bold mb-2">Verdict: <span style="color: ${theme.core}">${result.severity}</span></h4>
+                <p class="text-white/50 text-sm">Synchronized with World Health Organization & India BIS parameters.</p>
+            `;
+            
+        } catch (err) {
+            panel.innerHTML = `
+                <i data-lucide="alert-triangle" class="w-16 h-16 text-brand-rose mb-6"></i>
+                <h4 class="text-brand-rose font-bold mb-2">Calculation Failed</h4>
+                <p class="text-white/50 text-xs">The Python backend engine is currently unreachable. Please try again.</p>
+            `;
+            lucide.createIcons();
+        }
+    });
+}
