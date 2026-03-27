@@ -16,8 +16,8 @@ def fetch_live_wris_telemetry():
 
     live_nodes = []
     
-    # Generate 50 nodes across Indian Subcontinent bounded roughly: Lat(8.0 - 33.0), Lng(68.0 - 95.0)
-    for i in range(50):
+    # Generate 250 heavy-density nodes across Indian Subcontinent to create a stunning live telemetry map
+    for i in range(250):
         # Weighted random distribution towards actual industrial/river basins
         if random.random() < 0.4:
             # North/East India (Ganges belt - higher pollution)
