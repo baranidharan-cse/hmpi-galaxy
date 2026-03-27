@@ -6,7 +6,7 @@ import uvicorn
 import os
 
 from hmpi_engine import process_groundwater_data, calculate_hmpi, categorize_water
-from wris_interface import fetch_live_wris_telemetry
+from wris_interface import fetch_live_wris_telemetry, generate_custom_node
 
 app = FastAPI(title="HMPI Galaxy Enterprise API")
 
@@ -38,6 +38,10 @@ def get_historical_nodes():
 def sync_wris_live_data():
     live_df = fetch_live_wris_telemetry()
     return live_df.to_dict(orient="records")
+
+@app.get("/api/wris/search")
+def search_wris_location(lat: float, lng: float, query: str = "Unknown"):
+    return generate_custom_node(lat, lng, query)
 
 @app.post("/api/engine/calculate")
 def calculate_manual_hmpi(payload: MetalPayload):

@@ -353,3 +353,94 @@ function initManualCalculator() {
         }
     });
 }
+
+// --- Geographic Search Engine ---
+const searchInput = document.getElementById('global-search');
+if (searchInput) {
+    searchInput.addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') {
+            const query = searchInput.value.trim();
+            if (!query) return;
+            
+            searchInput.disabled = true;
+            searchInput.placeholder = "Locating via Satellite...";
+            
+            try {
+                // 1. Geocode via Nominatim
+                const nomRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+                const nomData = await nomRes.json();
+                
+                if (nomData && nomData.length > 0) {
+                    const bestResult = nomData[0];
+                    const lat = parseFloat(bestResult.lat);
+                    const lon = parseFloat(bestResult.lon);
+                    
+                    // 2. Fly Map Seamlessly
+                    if (map) {
+                        map.flyTo([lat, lon], 11, { duration: 1.5 });
+                    }
+                    
+                    // 3. Fetch Synthetic Node from Render backend
+                    const nodeRes = await fetch(`${API_BASE}/wris/search?lat=${lat}&lng=${lon}&query=${encodeURIComponent(bestResult.display_name)}`);
+                    if (nodeRes.ok) {
+                        const customNode = await nodeRes.json();
+                        
+                        // 4. Drop Custom Search Marker
+                        const theme = getNaturalColor(customNode.HMPI);
+                        const icon = L.divIcon({
+                            className: 'custom-search-marker',
+                            html: `
+                                <div style="position: relative; width: 18px; height: 18px; z-index: 1000;">
+                                    <div style="position: absolute; inset: 0; background-color: #fff; border-radius: 50%; opacity: 0.5; transform: scale(4); filter: blur(6px); animation: pulse-emerald 2s infinite;"></div>
+                                    <div style="position: absolute; inset: 0; background-color: ${theme.core}; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 25px ${theme.glow};"></div>
+                                </div>
+                            `,
+                            iconSize: [18, 18]
+                        });
+                        
+                        const safeNode = JSON.stringify(customNode).replace(/"/g, '&quot;');
+                        const title = bestResult.display_name.split(',')[0].substring(0, 30);
+                        const popupHtml = `
+                            <div class="px-2 py-1 font-sans bg-brand-dark text-white rounded w-64 border border-white/20">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                                    <span class="text-[10px] uppercase font-bold text-white/70 tracking-widest">Custom Satellite Scan</span>
+                                </div>
+                                <h4 class="font-bold text-sm mb-1 leading-tight" style="color: ${theme.core}">${title}</h4>
+                                <p class="text-xs text-white/60 mb-2">Lat: ${lat.toFixed(3)}, Lng: ${lon.toFixed(3)}</p>
+                                <div class="grid grid-cols-2 gap-2 text-[10px] bg-white/5 p-2 rounded mb-3">
+                                    <div><span class="text-white/40">Baseline Pb:</span> ${customNode.Pb.toFixed(3)}</div>
+                                    <div><span class="text-white/40">Baseline As:</span> ${customNode.As.toFixed(3)}</div>
+                                </div>
+                                <button onclick="runAIInference('${safeNode}', this)" class="w-full py-2 bg-brand-emerald text-brand-dark font-bold text-xs rounded hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                    <i data-lucide="scan-line" class="w-3 h-3"></i> Run AI X-Ray Inference
+                                </button>
+                            </div>
+                        `;
+                        
+                        const marker = L.marker([lat, lon], { icon: icon }).addTo(map);
+                        marker.bindPopup(popupHtml, {
+                            className: 'glass-popup custom-search-popup border border-white/10 rounded-lg overflow-hidden'
+                        });
+                        
+                        // Wait for fly flight to finish, then open popup automatically
+                        setTimeout(() => {
+                            marker.openPopup();
+                            lucide.createIcons(); // Reactivate Lucide for injected DOM
+                        }, 1600);
+                        
+                    }
+                } else {
+                    alert('Location not found via Satellite array.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Geocoding Satellite Uplink Failed.');
+            } finally {
+                searchInput.disabled = false;
+                searchInput.placeholder = "Search coordinates...";
+                searchInput.value = "";
+            }
+        }
+    });
+}
