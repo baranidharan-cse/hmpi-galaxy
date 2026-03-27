@@ -61,7 +61,15 @@ function initRouter() {
 
 // --- Map Logic ---
 function initMap() {
-    map = L.map('map', { zoomControl: false }).setView([22.9734, 78.6569], 5);
+    map = L.map('map', { 
+        zoomControl: true, 
+        zoomSnap: 0.25,      // Fractional zoom levels for smooth zooming
+        zoomDelta: 0.5,      // Wheel zoom jumps by 0.5 instead of 1.0
+        wheelPxPerZoomLevel: 120 
+    }).setView([22.9734, 78.6569], 5);
+    
+    // Reposition zoom controls to bottom-right for a sleek look
+    map.zoomControl.setPosition('bottomright');
     L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
         attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a> Earth Hybrid',
         maxZoom: 20
