@@ -195,7 +195,7 @@ function updateMap(nodes) {
         const popupHtml = `
             <div class="px-2 py-1 font-sans bg-brand-dark text-white rounded w-64">
                 <h4 class="font-bold text-sm mb-1" style="color: ${theme.core}">${node.Sample_ID}</h4>
-                <p class="text-xs text-white/60 mb-2">Location: ${node.Latitude.toFixed(2)}, ${node.Longitude.toFixed(2)}</p>
+                <p class="text-xs text-white/60 mb-2" id="loc-${node.Sample_ID}">Lat: ${node.Latitude.toFixed(2)}, Lng: ${node.Longitude.toFixed(2)}</p>
                 <div class="grid grid-cols-2 gap-2 text-[10px] bg-white/5 p-2 rounded mb-3">
                     <div><span class="text-white/40">Pb:</span> ${node.Pb.toFixed(3)}</div>
                     <div><span class="text-white/40">As:</span> ${node.As.toFixed(3)}</div>
@@ -213,10 +213,34 @@ function updateMap(nodes) {
             </div>
         `;
         
-        L.marker([node.Latitude, node.Longitude], { icon }).addTo(map)
-            .bindPopup(popupHtml, {
-                className: 'custom-popup-wrapper'
-            });
+        const marker = L.marker([node.Latitude, node.Longitude], { icon }).addTo(map);
+        marker.bindPopup(popupHtml, {
+            className: 'custom-popup-wrapper'
+        });
+        
+        marker.on('popupopen', async () => {
+            const locEl = document.getElementById(`loc-${node.Sample_ID}`);
+            if (locEl && !locEl.dataset.fetched) {
+                locEl.dataset.fetched = "true";
+                locEl.innerHTML = `<span class="animate-pulse flex items-center gap-1"><i data-lucide="satellite" class="w-3 h-3 text-brand-emerald"></i> Scanning Region...</span>`;
+                lucide.createIcons();
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${node.Latitude}&lon=${node.Longitude}`);
+                    if (!res.ok) throw new Error("Rate limit");
+                    const data = await res.json();
+                    if (data && data.address) {
+                        const city = data.address.city || data.address.state_district || data.address.county || data.address.town || "Unknown Region";
+                        const state = data.address.state || "India";
+                        locEl.innerHTML = `<span class="flex items-center gap-1 text-white"><i data-lucide="map-pin" class="w-3 h-3 text-brand-emerald"></i> ${city}, ${state}</span>`;
+                    } else {
+                        locEl.innerHTML = `Lat: ${node.Latitude.toFixed(2)}, Lng: ${node.Longitude.toFixed(2)}`;
+                    }
+                } catch(e) {
+                    locEl.innerHTML = `Lat: ${node.Latitude.toFixed(2)}, Lng: ${node.Longitude.toFixed(2)}`;
+                }
+                lucide.createIcons();
+            }
+        });
     });
 }
 
